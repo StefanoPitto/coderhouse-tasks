@@ -1,7 +1,19 @@
+const fs = require("fs");
+const path = "./products.txt";
+
 class ProductManager {
-  constructor() {
+  constructor(path) {
+    path.length === 0 ? (this.path = "./products.txt") : (this.path = path);
     this.counter = 0;
-    this.products = [];
+    if (fs.existsSync(this.path)) {
+      fs.readFileSync(this.path).length > 0
+        ? (this.products = JSON.parse(fs.readFileSync(this.path)))
+        : (this.products = []);
+    } else {
+      this.products = [];
+    }
+
+    this.updateFile();
   }
   addProduct = (title, description, price, thumbnail, code, stock) => {
     let item = this.products.find((elem) => elem.code === code);
@@ -18,101 +30,54 @@ class ProductManager {
       id: this.counter,
     });
     this.counter++;
+    this.updateFile();
   };
 
+  updateFile = () => {
+    fs.writeFileSync(this.path, JSON.stringify(this.products));
+  };
   getProducts = () => {
-    return this.products;
+    if (!fs.existsSync(this.path)) return;
+    return JSON.parse(fs.readFileSync(this.path));
   };
 
   getProductById = (id) => {
-    let toReturn = this.products.find((elem) => elem.id === id);
+    let array = JSON.parse(fs.readFileSync(this.path));
+    let toReturn = array.find((elem) => elem.id === id);
     if (!toReturn) {
       console.log("Not found");
       return;
     }
     return toReturn;
   };
-}
 
-const manager = new ProductManager();
-
-/*
- let productos = manager.getProducts();
- console.log("Productos1", productos);
- manager.addProduct("Pure", "Pure", 124, "thumbnail", "codigo", 10);
- console.log("Productos2", productos);
- console.log("ID1", manager.getProductById(productos[0].id));
- console.log("ID2", manager.getProductById(1));
- manager.addProduct("Pure", "Pure", 124, "thumbnail", "codigu", 10);
- console.log("Productos3", productos);
- manager.addProduct("Pure", "Pure", 124, "thumbnail", "codigo", 10);
- console.log("Productos4", productos);
-*/
-
-// Otra alternativa seria que el producto tenga su propia clase y crear el objecto en addProduct y luego agregarlo al array.
-
-class Product {
-  constructor(title, description, price, thumbnail, code, stock, id) {
-    this.title = title;
-    this.description = description;
-    this.price = price;
-    this.thumbnail = thumbnail;
-    this.code = code;
-    this.stock = stock;
-    this.id = id;
-  }
-
-  getTitle = () => {
-    return this.title;
-  };
-
-  getDescription = () => {
-    return this.description;
-  };
-
-  getPrice = () => {
-    return this.price;
-  };
-
-  getThumbnail = () => {
-    return this.thumbnail;
-  };
-
-  getCode = () => {
-    return this.code;
-  };
-
-  getStock = () => {
-    return this.stock;
-  };
-
-  getId = () => {
-    return this.id;
-  };
-
-  setTitle = (title) => {
-    this.title = title;
-  };
-
-  setDescription = (description) => {
-    this.description = description;
-  };
-
-  setPrice = (price) => {
-    this.price = price;
-  };
-
-  setCode = (code) => {
-    this.code = code;
-  };
-
-  setStock = (stock) => {
-    this.stock = stock;
-  };
-
-  setId = (id) => {
-    this.id = id;
+  updateProduct = (id, product) => {
+    let index = this.products.findIndex((elem) => elem.id === id);
+    if (index === -1) return;
+    this.products[index] = { ...product, id };
+    this.updateFile();
   };
 }
 
-// node ProductManager.js para correrlo en consola.
+const manager = new ProductManager(path);
+
+// manager.addProduct(
+//   "PRIMER PRODUCTO",
+//   "PRIMER PRODUCTO",
+//   "PRIMER PRODUCTO",
+//   "PRIMER PRODUCTO",
+//   "11111111111",
+//   20
+// );
+// manager.addProduct(
+//   "segundo PRODUCTO",
+//   "segundo PRODUCTO",
+//   "segundo PRODUCTO",
+//   "segundo PRODUCTO",
+//   "2222222222",
+//   20
+// );
+// console.log("Products1", manager.getProducts());
+// manager.updateProduct(1, { code: "777777777" });
+// console.log("Products2",manager.getProducts());
+// console.log(manager.getProductById(0));
