@@ -29,7 +29,7 @@ class ProductManager {
       stock,
       id: this.counter,
     });
-    this.counter++;
+    this.counter += 1;
     this.updateFile();
   };
 
@@ -66,24 +66,8 @@ class ProductManager {
 
 const manager = new ProductManager(path);
 
-manager.addProduct(
-  "PRIMER PRODUCTO",
-  "PRIMER PRODUCTO",
-  "PRIMER PRODUCTO",
-  "PRIMER PRODUCTO",
-  "11111111111",
-  20
-);
-manager.addProduct(
-  "segundo PRODUCTO",
-  "segundo PRODUCTO",
-  "segundo PRODUCTO",
-  "segundo PRODUCTO",
-  "2222222222",
-  20
-);
-manager.deleteProduct(0);
-console.log("Products1", manager.getProducts());
-manager.updateProduct(1, { code: "777777777" });
-console.log("Products2", manager.getProducts());
-console.log(manager.getProductById(0));
+manager.addProduct("uno", "uno", "uno", "uno", "uno", "uno");
+
+manager.addProduct("dos", "dos", "dos", "dos", "dos", "dos");
+
+module.exports = { manager };
