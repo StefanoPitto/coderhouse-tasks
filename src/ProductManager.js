@@ -1,9 +1,11 @@
 const fs = require("fs");
-const path = "./products.txt";
+const path = "./src/assets/products.json";
 
 class ProductManager {
   constructor(path) {
-    path.length === 0 ? (this.path = "./products.txt") : (this.path = path);
+    path.length === 0
+      ? (this.path = "./src/assets/products.json")
+      : (this.path = path);
     this.counter = 0;
     if (fs.existsSync(this.path)) {
       fs.readFileSync(this.path).length > 0
@@ -12,24 +14,17 @@ class ProductManager {
     } else {
       this.products = [];
     }
-
-    this.updateFile();
   }
-  addProduct = (title, description, price, thumbnail, code, stock) => {
-    let item = this.products.find((elem) => elem.code === code);
+  addProduct = (product) => {
+    let item = this.products.find((elem) => elem.code === product.code);
     if (item) {
-      return;
+      throw new Error("Error! Product already exists");
     }
     this.products.push({
-      title,
-      description,
-      price,
-      thumbnail,
-      code,
-      stock,
+      ...product,
       id: this.counter,
     });
-    this.counter += 1;
+    this.counter = this.counter + 1;
     this.updateFile();
   };
 
@@ -42,8 +37,7 @@ class ProductManager {
   };
 
   getProductById = (id) => {
-    let array = JSON.parse(fs.readFileSync(this.path));
-    let toReturn = array.find((elem) => elem.id === id);
+    let toReturn = this.product.find((elem) => elem.id === id);
     if (!toReturn) {
       console.log("Not found");
       return;
@@ -52,22 +46,20 @@ class ProductManager {
   };
 
   deleteProduct = (id) => {
-    this.products = this.products.filter((elem) => elem.id !== id);
+    let index = this.products.findIndex((elem) => elem.id === parseFloat(id));
+    if (index === -1) throw new Error("Product does not exist.");
+    this.products = this.products.filter((elem) => elem.id !== parseFloat(id));
     this.updateFile();
   };
 
   updateProduct = (id, product) => {
-    let index = this.products.findIndex((elem) => elem.id === id);
-    if (index === -1) return;
+    let index = this.products.findIndex((elem) => elem.id === parseFloat(id));
+    if (index === -1) throw new Error("Product does not exist.");
     this.products[index] = { ...this.products[index], ...product, id };
     this.updateFile();
   };
 }
 
 const manager = new ProductManager(path);
-
-manager.addProduct("uno", "uno", "uno", "uno", "uno", "uno");
-
-manager.addProduct("dos", "dos", "dos", "dos", "dos", "dos");
 
 module.exports = { manager };
