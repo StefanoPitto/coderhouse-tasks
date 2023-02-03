@@ -14,6 +14,7 @@ class ProductManager {
     } else {
       this.products = [];
     }
+    if (this.products.length > 0) this.counter = this.products.length;
   }
   addProduct = (product) => {
     let item = this.products.find((elem) => elem.code === product.code);
