@@ -1,7 +1,7 @@
-const fs = require("fs");
+import fs from "fs";
 const path = "./src/assets/products.json";
 
-class ProductManager {
+export class ProductManager {
   constructor(path) {
     path.length === 0
       ? (this.path = "./src/assets/products.json")
@@ -61,6 +61,4 @@ class ProductManager {
   };
 }
 
-const manager = new ProductManager(path);
-
-module.exports = { manager };
+export const manager = new ProductManager(path);

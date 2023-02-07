@@ -1,25 +1,27 @@
-const { Router } = require("express");
-const { manager } = require("../ProductManager");
-const { check, validationResult } = require("express-validator");
-const { verifyStringArray } = require("../middlewares/verifyStringArray");
-const { fieldsValidation } = require("../middlewares/fieldsValidation");
-const router = Router();
+import { Router } from "express";
+import { manager } from "../ProductManager.js";
+import { check } from "express-validator";
+import { verifyStringArray } from "../middlewares/verifyStringArray.js";
+import { fieldsValidation } from "../middlewares/fieldsValidation.js";
+import { socketServer } from "../app.js";
 
-router.get("/", async (req, res) => {
+export const productsRouter = Router();
+
+productsRouter.get("/", async (req, res) => {
   const { limit } = req.query;
   const products = await manager.getProducts();
   if (limit) res.send(products.slice(0, limit));
   else res.send(products);
 });
 
-router.get("/:pid", async (req, res) => {
+productsRouter.get("/:pid", async (req, res) => {
   const { pid } = req.params;
   const product = await manager.getProductById(parseInt(pid));
   if (product) res.send(product);
   else res.send("Product does not exist.");
 });
 
-router.post(
+productsRouter.post(
   "/",
   [
     check("title").notEmpty().isString(),
@@ -60,11 +62,12 @@ router.post(
     } catch (error) {
       res.status(409).send("The product already exists.");
     }
+    socketServer.emit("productUpdate", manager.getProducts());
   }
 );
 
 // Cuando se realiza el put, el server vuelve a reiniciarse dado que detecta cambios en el .JSON y vuelve a instanciar el manager por lo que siempre vuelve a poner el id en 0. Esto se puede solucionar con una libreria como uuid.
-router.put("/:pid", async (req, res) => {
+productsRouter.put("/:pid", async (req, res) => {
   const product = req.body;
   const id = req.params.pid;
   try {
@@ -77,7 +80,7 @@ router.put("/:pid", async (req, res) => {
   res.json({ msg: "Product updated successfully." });
 });
 
-router.delete("/:pid", async (req, res) => {
+productsRouter.delete("/:pid", async (req, res) => {
   const id = req.params.pid;
   try {
     await manager.deleteProduct(id);
@@ -88,6 +91,5 @@ router.delete("/:pid", async (req, res) => {
       .status(404)
       .send("An error ocurred when trying to delete the product. ");
   }
+  socketServer.emit("productUpdate", manager.getProducts());
 });
-
-module.exports = router;

@@ -1,14 +1,17 @@
-const { manager } = require("../../ProductManager");
-//Socket
-
+let container = document.getElementById("container");
 const socket = io();
 
-socket.on();
+socket.on("connect", () => {
+  console.log("User connected");
+});
 
-let container = document.getElementById("container");
+socket.on("Products", (products) => {
+  const html = products
+    .map(
+      (elem) =>
+        `<div><h1>${elem.title}</h1><p>${elem.description}</p><span>${elem.price}</span></div>`
+    )
+    .join("");
 
-const products = manager.getProducts();
-
-products.forEach((elem) => {
-  container.innerHTML += `<div><h1>${elem.title}</h1><p>${elem.description}</p><span>${elem.price}</span></div>`;
+  container.innerHTML = html;
 });

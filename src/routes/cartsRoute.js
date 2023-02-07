@@ -1,19 +1,17 @@
-const { Router } = require("express");
+import { Router } from "express";
+import { check } from "express-validator";
+import { cartManager } from "../CartManager.js";
+import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 
-const { check } = require("express-validator");
+export const cartRouter = Router();
 
-const { cartManager } = require("../CartManager");
-const { fieldsValidation } = require("../middlewares/fieldsValidation");
-
-const router = Router();
-
-router.post("/", async (req, res) => {
+cartRouter.post("/", async (req, res) => {
   await cartManager.createCart();
   res.statusCode = 200;
   res.json({ msg: "Cart created successfully" });
 });
 
-router.get("/:cid", async (req, res) => {
+cartRouter.get("/:cid", async (req, res) => {
   const { cid } = req.params;
   try {
     let cart = await cartManager.getCartById(cid);
@@ -25,7 +23,7 @@ router.get("/:cid", async (req, res) => {
   }
 });
 
-router.post(
+cartRouter.post(
   "/:cid/products/:pid",
   [check("quantity").isNumeric(), fieldsValidation],
   async (req, res) => {
@@ -41,4 +39,3 @@ router.post(
     }
   }
 );
-module.exports = router;
