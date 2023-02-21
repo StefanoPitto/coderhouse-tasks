@@ -4,7 +4,7 @@ import { ProductModel } from "./models/product.model.js";
 export class ProductManager {
   constructor() {
     this.collection = ProductModel;
-    this.counter = 0;
+    this.setCounter();
   }
   addProduct = async (product) => {
     const item = await this.collection.findOne({ code: product.code });
@@ -27,7 +27,7 @@ export class ProductManager {
   getProducts = async () => {
     let exists = await this.collection.exists();
     if (!exists) throw new Error("Collection is empty");
-    if (this.collection.countDocuments === 0)
+    if ((await this.collection.countDocuments()) === 0)
       throw new Error("Collection is Empty");
     let products = await this.collection.find();
     return products;
@@ -64,6 +64,11 @@ export class ProductManager {
     } catch (error) {
       throw new Error("Error when trying to update the product!");
     }
+  };
+
+  setCounter = async () => {
+    const size = await this.collection.countDocuments();
+    this.counter = size;
   };
 }
 

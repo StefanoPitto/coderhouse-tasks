@@ -14,8 +14,12 @@ productsRouter.get("/", async (req, res) => {
     if (limit) res.send(products.slice(0, limit));
     else res.send(products);
   } catch (error) {
+    const errorMessage = Array.isArray(error)
+      ? error.join("")
+      : error.toString();
     res.status(400).json({
-      msg: "Error when trying to get the products",
+      msg: "Error on request!",
+      error: errorMessage,
     });
   }
 });
