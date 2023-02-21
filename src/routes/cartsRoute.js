@@ -1,14 +1,18 @@
 import { Router } from "express";
 import { check } from "express-validator";
-import { cartManager } from "../CartManager.js";
+import { cartManager } from "../dao/CartManager.js";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 
 export const cartRouter = Router();
 
 cartRouter.post("/", async (req, res) => {
-  await cartManager.createCart();
-  res.statusCode = 200;
-  res.json({ msg: "Cart created successfully" });
+  try {
+    await cartManager.createCart();
+    res.statusCode = 200;
+    res.json({ msg: "Cart created successfully" });
+  } catch (error) {
+    console.log("Error when adding a new cart");
+  }
 });
 
 cartRouter.get("/:cid", async (req, res) => {
