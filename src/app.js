@@ -7,6 +7,7 @@ import { productsRouter } from "./routes/productsRoute.js";
 import { cartRouter } from "./routes/cartsRoute.js";
 import { manager } from "./dao/ProductManager.js";
 import { MessageModel } from "./dao/models/message.model.js";
+
 import mongoose from "mongoose";
 const app = express();
 
@@ -60,25 +61,24 @@ mongoose
 
 export const socketServer = new Server(httpServer);
 
-socketServer.on("connection", () => {
+socketServer.on("connection", async (socket) => {
   console.log("User connection");
 
-  socketServer.emit("Products", manager.getProducts());
+  socket.emit("Products", manager.getProducts());
 
-  socketServer.on("message", async (message) => {
+  socket.on("asd", (asd) => console.log(asd.asd));
+
+  socket.on("message", async (message) => {
     const newMessage = new MessageModel(message);
     await newMessage.save();
     const messagesArray = await MessageModel.find();
     socketServer.emit("messageUpdate", messagesArray);
   });
 
-  socketServer.on("disconnect", () => {
+  socket.on("disconnect", () => {
     console.log("User disconnected");
   });
+  socket.on("product", (products) => {
+    socketServer.emit("newProduct", products);
+  });
 });
-
-socketServer.on("product", (products) => {
-  socketServer.emit("newProduct", products);
-});
-
-//Chat Messages

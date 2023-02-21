@@ -1,11 +1,13 @@
-<div id="container">
-  <input id="emailInput" placeholder="Email..." />
-  <input id="textInput" placeholder="Mensaje..." />
-  <button id="sendBtn">SEND</button>
+<div>
+  <form id="chat-form">
+    <input id="emailInput" placeholder="Email..." />
+    <input id="textInput" placeholder="Mensaje..." />
+    <button type="submit">SEND</button>
+  </form>
   <div>
     <h1>Chat</h1>
-    <div></div>
+    <div id="chat-container"></div>
   </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<script src="js/chat.js"></script>
+<script src="js/index.js"></script>
