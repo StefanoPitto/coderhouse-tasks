@@ -61,12 +61,21 @@ mongoose
 
 export const socketServer = new Server(httpServer);
 
-socketServer.on("connection", async (socket) => {
+socketServer.on("connection", (socket) => {
   console.log("User connection");
 
-  socket.emit("Products", manager.getProducts());
-
-  socket.on("asd", (asd) => console.log(asd.asd));
+  socket.on("loadProductsOnConnection", async () => {
+    let products = [];
+    try {
+      products = await manager.getProducts();
+    } catch (error) {
+      console.log(error);
+    }
+    socket.emit("products", products);
+  });
+  socket.on("product", (products) => {
+    socketServer.emit("newProduct", products);
+  });
 
   socket.on("message", async (message) => {
     const newMessage = new MessageModel(message);
@@ -75,10 +84,10 @@ socketServer.on("connection", async (socket) => {
     socketServer.emit("messageUpdate", messagesArray);
   });
 
+  socket.on("loadChatOnConnection", async () => {
+    socket.emit("loadMessages", await MessageModel.find());
+  });
   socket.on("disconnect", () => {
     console.log("User disconnected");
-  });
-  socket.on("product", (products) => {
-    socketServer.emit("newProduct", products);
   });
 });
