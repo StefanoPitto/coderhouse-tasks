@@ -73,8 +73,15 @@ socketServer.on("connection", (socket) => {
     }
     socket.emit("products", products);
   });
-  socket.on("product", (products) => {
-    socketServer.emit("newProduct", products);
+
+  socket.on("addProduct", async (product) => {
+    try {
+      manager.addProduct({ ...product, status: true });
+      socket.emit("productsUpdated", await manager.getProducts());
+    } catch (error) {
+      console.log(error);
+      socket.emit("error", error);
+    }
   });
 
   socket.on("message", async (message) => {

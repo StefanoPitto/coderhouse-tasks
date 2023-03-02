@@ -1,4 +1,23 @@
-<div id="real-time-container">
+<div>
+  <form id="add-product-form">
+    <input id="titleInput" type="text" placeholder="Title" />
+    <input id="descriptionInput" type="text" placeholder="Description" />
+    <input id="priceInput" type="number" placeholder="Price" />
+    <input id="stockInput" type="number" placeholder="Stock" />
+    <input id="categoryInput" type="text" placeholder="Category" />
+    <input id="codeInput" type="text" placeholder="Code" />
+    <div>
+      <input id="thumbnailInput" type="text" placeholder="Thumbnail" />
+      <span id="add-btn">+</span>
+      <span id="remove-btn">X</span>
+      <div id="thumbnail-container"></div>
+    </div>
+    <button type="submit">ADD PRODUCT</button>
+  </form>
+  <p id="errorMessage"></p>
+  <div id="real-time-container">
+    <h1>Products</h1>
+  </div>
 </div>
 <script src="/socket.io/socket.io.js"></script>
-<script src="js/index.js"></script>
+<script src="js/realTimeProducts.js"></script>

@@ -9,7 +9,7 @@ export class ProductManager {
   addProduct = async (product) => {
     const item = await this.collection.findOne({ code: product.code });
     if (item) {
-      throw new Error("Error! Product already exists");
+      return;
     }
 
     const newProduct = new ProductModel({ id: this.counter, ...product });
@@ -20,7 +20,6 @@ export class ProductManager {
     } catch (err) {
       throw new Error("Error, when adding a new product!");
     }
-
     this.counter++;
   };
 

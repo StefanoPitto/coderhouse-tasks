@@ -1,9 +1,9 @@
 let container = document.getElementById("products-container");
-let realTimeContainer = document.getElementById("real-time-container");
 let chatContainer = document.getElementById("chat-container");
 let emailInput = document.getElementById("emailInput");
 let textInput = document.getElementById("textInput");
 let chatForm = document.getElementById("chat-form");
+
 const socket = io();
 
 socket.on("connect", () => {
@@ -28,7 +28,7 @@ socket.on("connect", () => {
       )
       .join("");
 
-    container.innerHTML = html;
+    realTimeContainer.innerHTML += html;
   });
   //Chat
   socket.emit("loadChatOnConnection");
