@@ -8,9 +8,16 @@ import { socketServer } from "../app.js";
 export const productsRouter = Router();
 
 productsRouter.get("/", async (req, res) => {
-  const { limit } = req.query;
+  const { limit, page, sort, category, minPrice, maxPrice } = req.query;
   try {
-    const products = await manager.getProducts();
+    const products = await manager.getProducts(
+      limit,
+      page,
+      sort,
+      category,
+      minPrice,
+      maxPrice
+    );
     if (limit) res.send(products.slice(0, limit));
     else res.send(products);
   } catch (error) {
