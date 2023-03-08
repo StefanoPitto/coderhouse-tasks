@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { manager } from "../ProductManager.js";
+import { manager } from "../dao/ProductManager.js";
 import { check } from "express-validator";
 import { verifyStringArray } from "../middlewares/verifyStringArray.js";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
@@ -9,16 +9,32 @@ export const productsRouter = Router();
 
 productsRouter.get("/", async (req, res) => {
   const { limit } = req.query;
-  const products = await manager.getProducts();
-  if (limit) res.send(products.slice(0, limit));
-  else res.send(products);
+  try {
+    const products = await manager.getProducts();
+    if (limit) res.send(products.slice(0, limit));
+    else res.send(products);
+  } catch (error) {
+    const errorMessage = Array.isArray(error)
+      ? error.join("")
+      : error.toString();
+    res.status(400).json({
+      msg: "Error on request!",
+      error: errorMessage,
+    });
+  }
 });
 
 productsRouter.get("/:pid", async (req, res) => {
   const { pid } = req.params;
-  const product = await manager.getProductById(parseInt(pid));
-  if (product) res.send(product);
-  else res.send("Product does not exist.");
+  try {
+    const product = await manager.getProductById(parseInt(pid));
+    if (product) res.send(product);
+    else res.send("Product does not exist.");
+  } catch (error) {
+    res.status(400).json({
+      msg: "Error when trying to get the products",
+    });
+  }
 });
 
 productsRouter.post(
@@ -62,11 +78,10 @@ productsRouter.post(
     } catch (error) {
       res.status(409).send("The product already exists.");
     }
-    socketServer.emit("productUpdate", manager.getProducts());
+    socketServer.emit("productUpdate", await manager.getProducts());
   }
 );
 
-// Cuando se realiza el put, el server vuelve a reiniciarse dado que detecta cambios en el .JSON y vuelve a instanciar el manager por lo que siempre vuelve a poner el id en 0. Esto se puede solucionar con una libreria como uuid.
 productsRouter.put("/:pid", async (req, res) => {
   const product = req.body;
   const id = req.params.pid;
@@ -91,5 +106,5 @@ productsRouter.delete("/:pid", async (req, res) => {
       .status(404)
       .send("An error ocurred when trying to delete the product. ");
   }
-  socketServer.emit("productUpdate", manager.getProducts());
+  socketServer.emit("productUpdate", await manager.getProducts());
 });
