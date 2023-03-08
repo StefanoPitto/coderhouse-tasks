@@ -1,7 +1,7 @@
-const fs = require("fs");
+import fs from "fs";
 const path = "./src/assets/products.json";
 
-class ProductManager {
+export class ProductManager {
   constructor(path) {
     path.length === 0
       ? (this.path = "./src/assets/products.json")
@@ -14,6 +14,7 @@ class ProductManager {
     } else {
       this.products = [];
     }
+    if (this.products.length > 0) this.counter = this.products.length;
   }
   addProduct = (product) => {
     let item = this.products.find((elem) => elem.code === product.code);
@@ -60,6 +61,4 @@ class ProductManager {
   };
 }
 
-const manager = new ProductManager(path);
-
-module.exports = { manager };
+export const manager = new ProductManager(path);

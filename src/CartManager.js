@@ -1,5 +1,4 @@
-const express = require("express");
-const fs = require("fs");
+import fs from "fs";
 const path = "./src/assets/carts.json";
 
 class CartManager {
@@ -47,6 +46,4 @@ class CartManager {
   };
 }
 
-cartManager = new CartManager();
-
-module.exports = { cartManager };
+export const cartManager = new CartManager();

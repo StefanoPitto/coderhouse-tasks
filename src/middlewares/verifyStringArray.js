@@ -1,6 +1,6 @@
-const { response } = require("express");
+import { response } from "express";
 
-const verifyStringArray = (req, res = response, next) => {
+export const verifyStringArray = (req, res = response, next) => {
   if (!req.body.thumbnail) {
     next();
     return;
@@ -15,5 +15,3 @@ const verifyStringArray = (req, res = response, next) => {
     return res.status(400).send("Array must contain only strings");
   }
 };
-
-module.exports = { verifyStringArray };
