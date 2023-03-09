@@ -23,12 +23,34 @@ export class ProductManager {
     this.counter++;
   };
 
-  getProducts = async () => {
+  getProducts = async (
+    limit = 10,
+    page = 1,
+    sort = "asc",
+    category,
+    minPrice = 0,
+    maxPrice = 100000
+  ) => {
+    const filter = {
+      category: category || { $exists: true },
+      price: {
+        $gte: minPrice,
+        $lte: maxPrice,
+      },
+    };
+
+    const orderBy = {
+      price: sort === "desc" ? -1 : 1,
+    };
+
     let exists = await this.collection.exists();
     if (!exists) throw new Error("Collection is empty");
-    if ((await this.collection.countDocuments()) === 0)
-      throw new Error("Collection is Empty");
-    let products = await this.collection.find();
+    let result = await this.collection.paginate(filter, {
+      limit: parseInt(limit),
+      page: parseInt(page),
+      sort: orderBy,
+    });
+    let products = result.docs; // extract the docs property from the result
     return products;
   };
 
