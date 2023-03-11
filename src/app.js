@@ -31,6 +31,18 @@ app.get("/chat", (req, res) => {
   res.render("chat");
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
+app.get("/create-account", (req, res) => {
+  res.render("createAccount");
+});
+
+app.get("/user-profile", (req, res) => {
+  res.render("userProfile");
+});
+
 //Products ROUTE
 app.use("/api/products", productsRouter);
 

@@ -12,8 +12,13 @@ socket.on("connect", () => {
   socket.on("products", (products) => {
     const html = products
       .map(
-        (elem) =>
-          `<div><h1>Title: ${elem.title}</h1><p>Description: ${elem.description}</p><span>Price: $${elem.price}</span></div>`
+        (product) =>
+          `<div class="product">
+          <h2 class="product-title">${product.title}</h2>
+          <p class="product-price">$${product.price.toFixed(2)}</p>
+          <p class="product-stock">${product.stock}</p>
+          <p class="product-category">${product.category}</p>
+        </div>`
       )
       .join("");
 
@@ -23,8 +28,13 @@ socket.on("connect", () => {
   socket.on("productUpdate", (products) => {
     const html = products
       .map(
-        (elem) =>
-          `<div><h1>${elem.title}</h1><p>${elem.description}</p><span>${elem.price}</span></div>`
+        (product) =>
+          `<div class="product">
+          <h2 class="product-title">${product.title}</h2>
+          <p class="product-price">$${product.price.toFixed(2)}</p>
+          <p class="product-stock">${product.stock}</p>
+          <p class="product-category">${product.category}</p>
+        </div>`
       )
       .join("");
 
@@ -36,7 +46,7 @@ socket.on("connect", () => {
     let content = messageArray
       .map(
         (elem) =>
-          `<div><p>User: ${elem.user}</p> <p>Message: ${elem.message}</p></div>`
+          `<div><p class="user">User: ${elem.user}</p> <p class="message">Message: ${elem.message}</p></div>`
       )
       .join("");
     chatContainer.innerHTML = content;
@@ -53,7 +63,7 @@ socket.on("loadMessages", (messageArray) => {
   let content = messageArray
     .map(
       (elem) =>
-        `<div><p>User: ${elem.user}</p> <p>Message: ${elem.message}</p></div>`
+        `<div><p class="user">User: ${elem.user}</p> <p class="message">Message: ${elem.message}</p></div>`
     )
     .join("");
   chatContainer.innerHTML = content;
