@@ -7,13 +7,26 @@ import { productsRouter } from "./routes/productsRoute.js";
 import { cartRouter } from "./routes/cartsRoute.js";
 import { manager } from "./dao/ProductManager.js";
 import { MessageModel } from "./dao/models/message.model.js";
-
+import { usersRouter } from "./routes/usersRoute.js";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 const app = express();
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
+app.use(
+  session({
+    secret: "jbRjmQdINhx6mkMy",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl:
+        "mongodb+srv://stefanopitto1:jbRjmQdINhx6mkMy@cluster0.vujisoj.mongodb.net/test",
+    }),
+  })
+);
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -48,6 +61,10 @@ app.use("/api/products", productsRouter);
 
 //Carts ROUTE
 app.use("/api/carts", cartRouter);
+
+//Auth Route
+
+app.use("/api/auth", usersRouter);
 
 //Lo mejor seria cambiar el puerto por una variable de entorno.
 

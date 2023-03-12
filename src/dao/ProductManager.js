@@ -18,7 +18,7 @@ export class ProductManager {
       await newProduct.save();
       console.log(newProduct);
     } catch (err) {
-      throw new Error("Error, when adding a new product!");
+      throw new Error("Error when adding a new product!");
     }
     this.counter++;
   };

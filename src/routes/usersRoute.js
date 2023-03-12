@@ -2,7 +2,7 @@ import { Router } from "express";
 import { manager } from "../dao/ProductManager.js";
 import { check } from "express-validator";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
-
+import { userManager } from "../dao/UsersManager.js";
 export const usersRouter = Router();
 
 usersRouter.post(
@@ -10,7 +10,7 @@ usersRouter.post(
   [
     check("name").notEmpty().isString(),
     check("email").notEmpty().isEmail(),
-    check("password").notEmpty().isString().isStrongPassword(),
+    check("password").notEmpty().isString(),
     check("age").notEmpty().isNumeric(),
     check("address").notEmpty().isString(),
     check("role").isIn(["admin", "user"]),
@@ -18,26 +18,17 @@ usersRouter.post(
   ],
   async (req, res) => {
     // get the user details from the request body
-    const { name, email, password, age, address } = req.body;
+    const { name, email, password, age, address, role = "user" } = req.body;
+
+    const user = { name, email, password, age, address, role };
 
     try {
-      // create a new user document
-      const user = new UserModel({
-        name,
-        email,
-        password,
-        age,
-        address,
-      });
-
-      // save the user document to the database
-      await user.save();
-
-      // return a success response
-      res.status(201).json({ message: "User account created successfully" });
+      const userFromDb = await userManager.createUser(user);
+      res
+        .status(201)
+        .json({ message: "User account created successfully", ...userFromDb });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: "Server error" });
+      return res.status(500).json({ err });
     }
   }
 );
@@ -53,22 +44,34 @@ usersRouter.post(
     const { email, password } = req.body;
 
     try {
-      // find the user with the given email
-      const user = await User.findOne({ email });
-
-      // if the user is not found, return an error response
-      if (!user) {
-        return res.status(401).json({ error: "Invalid credentials" });
-      }
-
-      // initialize the user's session
-      req.session.userId = user._id;
-
-      // return a success response with the token
-      res.status(200).json({ token });
+      const user = await userManager.login({ email, password });
+      console.log("USERID", user.id);
+      req.session.user = { id: user._id, email: user.email };
+      res.status(201).json({ msg: "Login succesfull", ...user });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Server error" });
+      res.status(500).json({ err });
     }
   }
 );
+
+usersRouter.get("/:id", async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await userManager.getUserById(userId);
+    res.status(200).json({ ...user });
+  } catch (error) {
+    res.status(500).json({ msg: "Error!" });
+  }
+});
+
+usersRouter.post("/logout", async (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error logging out");
+    } else {
+      res.sendStatus(200);
+    }
+  });
+});

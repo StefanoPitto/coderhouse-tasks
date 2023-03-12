@@ -76,9 +76,11 @@ h1 {
 .profile-info label {
   font-weight: bold;
   margin-bottom: 5px;
+  display: inline-block;
 }
 .profile-info span {
   margin-bottom: 10px;
+  display: inline-block;
 }
 .profile-info span:last-of-type {
   margin-bottom: 0;
