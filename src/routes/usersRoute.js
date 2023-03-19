@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { manager } from "../dao/ProductManager.js";
 import { check } from "express-validator";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 import { userManager } from "../dao/UsersManager.js";
+import passport from "passport";
 export const usersRouter = Router();
 
 usersRouter.post(
@@ -75,3 +75,18 @@ usersRouter.post("/logout", async (req, res) => {
     }
   });
 });
+
+usersRouter.get(
+  "/githubLogin",
+  passport.authenticate("github", { scope: ["user:email"] })
+);
+usersRouter.get(
+  "/github",
+  passport.authenticate("github", {
+    failureRedirect: "/",
+  }),
+  async (req, res) => {
+    req.session.email = req.user.email;
+    res.redirect("/user-profile");
+  }
+);
