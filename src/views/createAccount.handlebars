@@ -21,5 +21,12 @@
   </select>
 
   <input type="submit" value="Create Account" />
+  <p>Or:</p>
+  <button
+    class="github-login"
+    id="github-create-account"
+    onclick="location.href='/api/auth/registerGitHub'"
+  ><ion-icon name="logo-github"></ion-icon>
+    Use Github Account</button>
 </form>
 <script src="js/createAccount.js"></script>

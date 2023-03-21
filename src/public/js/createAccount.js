@@ -5,7 +5,7 @@ const password = document.getElementById("signup-password");
 const age = document.getElementById("signup-age");
 const address = document.getElementById("signup-address");
 const role = document.getElementById("signup-role");
-
+const githubAccount = document.getElementById("github-create-account");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -31,4 +31,8 @@ form.addEventListener("submit", async (e) => {
     let userId = user._doc._id;
     window.location.replace(`/user-profile?id=${userId}`);
   }
+});
+
+githubAccount.addEventListener("click", (e) => {
+  e.preventDefault();
 });

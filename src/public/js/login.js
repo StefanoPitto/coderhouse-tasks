@@ -1,7 +1,7 @@
 const form = document.getElementById("login-form");
 const email = document.getElementById("login-email");
 const password = document.getElementById("login-password");
-
+const githubLogin = document.getElementById("github-login");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   let user = {
