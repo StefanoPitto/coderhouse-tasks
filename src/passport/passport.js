@@ -1,7 +1,9 @@
-import passport, { Strategy as LocalStrategy } from "passport";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GitHubStrategy } from "passport-github2";
 import { UserModel } from "../dao/models/user.model.js";
 import { hash } from "bcrypt";
+
 passport.use(
   "register",
   new LocalStrategy(
@@ -19,6 +21,31 @@ passport.use(
       const newUser = { ...req.body, password: hashedPassword };
       const newuserBD = await userModel.create(newUser);
       done(null, newuserBD);
+    }
+  )
+);
+
+passport.use(
+  "login",
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+      passReqToCallback: true,
+    },
+    async (req, email, password, done) => {
+      const user = await userModel.findOne({ email });
+      if (user) {
+        if (await bcrypt.compare(password, user.password)) {
+          req.session.name = user.first_name;
+          req.session.email = user.email;
+          req.session.password = user.password;
+
+          return done(null, user);
+        } else {
+          return done(null, false);
+        }
+      }
     }
   )
 );
@@ -57,6 +84,6 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await userModel.findById(id);
+  const user = await UserModel.findById(id);
   done(null, user);
 });
