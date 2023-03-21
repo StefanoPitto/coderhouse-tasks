@@ -35,5 +35,4 @@ form.addEventListener("submit", async (e) => {
 
 githubAccount.addEventListener("click", (e) => {
   e.preventDefault();
-  window.location.href = "http://localhost:8080/api/auth/githubLogin";
 });

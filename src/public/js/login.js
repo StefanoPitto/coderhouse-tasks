@@ -24,19 +24,3 @@ form.addEventListener("submit", async (e) => {
     window.location.replace(`/user-profile?id=${userId}`);
   }
 });
-
-githubLogin.addEventListener("click", async (e) => {
-  e.preventDefault();
-  try {
-    const response = await fetch("/api/auth/githubLogin", {
-      method: "GET",
-      credentials: "include", // this is needed to include the user's session cookie in the request
-    });
-
-    if (response.redirected) {
-      window.location.href = response.url; // redirect to the home page after successful authentication
-    }
-  } catch (error) {
-    console.error(error);
-  }
-});

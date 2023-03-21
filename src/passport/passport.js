@@ -24,23 +24,22 @@ passport.use(
 );
 
 passport.use(
-  "github",
+  "GitHub",
   new GitHubStrategy(
     {
-      clientID: "Iv1.db08b796b4e9bbed",
-      clientSecret: "1deb8dbc553093bd13def9b3b561f5f5e8e8d68c",
-      callbackURL: "http://localhost:8080/api/auth/githubUsers",
+      clientID: "Iv1.20237976621ec5c1",
+      clientSecret: "1f8be03f1b4d6b75068e3b0251fc297df6e4ef87",
+      callbackURL: "http://localhost:8080/api/auth/GitHub",
     },
     async (accessToken, refreshToken, profile, done) => {
       const user = await usersModel.findOne({ email: profile._json.email });
       if (!user) {
         const newUser = {
-          first_name: profile._json.name.split(" ")[0],
-          last_name: profile._json.name.split(" ")[1] || " ",
+          name: profile._json.name,
           email: profile._json.email,
           password: " ",
-          address: null,
-          age: null,
+          address: " ",
+          age: 0,
           role: "user",
         };
         const dbResult = await UserModel.save(newUser);
