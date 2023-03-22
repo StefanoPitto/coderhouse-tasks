@@ -62,7 +62,13 @@ usersRouter.post(
     failureRedirect: "/",
     successRedirect: "/realTimeProducts",
     passReqToCallback: true,
-  })
+  }),
+  async (req, res) => {
+    req.session.email = req.user.email;
+    const userFromDb = await UserModel.findOne({ email: user.email });
+    console.log(userFromDb._id);
+    res.redirect(`/user-profile?id=${userFromDb._id}`);
+  }
 );
 
 usersRouter.post(
@@ -106,7 +112,7 @@ usersRouter.get(
   }),
   async (req, res) => {
     req.session.email = req.user.email;
-    const userFromDb = await this.collection.findOne({ email: user.email });
+    const userFromDb = await UserModel.findOne({ email: user.email });
 
     res.redirect(`/user-profile?id=${userFromDb._id}`);
   }

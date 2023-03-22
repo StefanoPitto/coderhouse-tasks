@@ -11,6 +11,8 @@ import { usersRouter } from "./routes/usersRoute.js";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
+import passport from "passport";
+import "./passport/passport.js";
 const app = express();
 
 app.use(json());
@@ -27,6 +29,9 @@ app.use(
     }),
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");

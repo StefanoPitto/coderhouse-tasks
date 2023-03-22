@@ -27,9 +27,7 @@ form.addEventListener("submit", async (e) => {
   });
 
   if (res.ok) {
-    const user = await res.json();
-    let userId = user._doc._id;
-    window.location.replace(`/user-profile?id=${userId}`);
+    window.location.href = res.url;
   }
 });
 

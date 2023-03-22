@@ -13,14 +13,14 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, email, password, done) => {
-      const user = await userModel.findOne({ email });
+      const user = await UserModel.findOne({ email });
       if (user) {
         return done(null, false);
       }
       const hashedPassword = await hash(password, 10);
       const newUser = { ...req.body, password: hashedPassword };
-      const newuserBD = await userModel.create(newUser);
-      done(null, newuserBD);
+      const newuserDB = await UserModel.create(newUser);
+      done(null, newuserDB);
     }
   )
 );
@@ -33,19 +33,17 @@ passport.use(
       passwordField: "password",
       passReqToCallback: true,
     },
-    async (req, email, password, done) => {
-      const user = await userModel.findOne({ email });
+    async (req, res, email, password, done) => {
+      const user = await UserModel.findOne({ email });
       if (user) {
-        if (await bcrypt.compare(password, user.password)) {
-          req.session.name = user.first_name;
-          req.session.email = user.email;
-          req.session.password = user.password;
-
-          return done(null, user);
-        } else {
-          return done(null, false);
-        }
+        return done(null, false);
       }
+      const hashedPassword = await hash(password, 10);
+      const newUser = new UserModel({ ...user, password: hashedPassword });
+
+      await newUser.save();
+      res.redirect(`/user-profile?id=${userId}`);
+      done(null, newUser);
     }
   )
 );
@@ -59,7 +57,7 @@ passport.use(
       callbackURL: "http://localhost:8080/api/auth/GitHub",
     },
     async (accessToken, refreshToken, profile, done) => {
-      const user = await usersModel.findOne({ email: profile._json.email });
+      const user = await UserModel.findOne({ email: profile._json.email });
       if (!user) {
         const newUser = {
           name: profile._json.name,
@@ -79,7 +77,6 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  console.log(user);
   done(null, user._id);
 });
 
