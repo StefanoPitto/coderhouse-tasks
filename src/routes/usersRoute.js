@@ -3,7 +3,8 @@ import { check } from "express-validator";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 import { userManager } from "../dao/UsersManager.js";
 import { UserModel } from "../dao/models/user.model.js";
-import passport from "passport";
+import passport from "../passport/passport.js";
+import "../passport/passport.js";
 export const usersRouter = Router();
 
 // usersRouter.post(
@@ -103,16 +104,16 @@ usersRouter.post("/logout", async (req, res) => {
 
 usersRouter.get(
   "/registerGitHub",
-  passport.authenticate("GitHub", { scope: ["user:email"] })
+  passport.authenticate("github", { scope: ["user:email"] })
 );
 usersRouter.get(
   "/GitHub",
-  passport.authenticate("GitHub", {
+  passport.authenticate("github", {
     failureRedirect: "/",
   }),
   async (req, res) => {
     req.session.email = req.user.email;
-    const userFromDb = await UserModel.findOne({ email: user.email });
+    const userFromDb = await UserModel.findOne({ email: req.user.email });
 
     res.redirect(`/user-profile?id=${userFromDb._id}`);
   }

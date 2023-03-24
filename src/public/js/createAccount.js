@@ -30,7 +30,3 @@ form.addEventListener("submit", async (e) => {
     window.location.href = res.url;
   }
 });
-
-githubAccount.addEventListener("click", (e) => {
-  e.preventDefault();
-});

@@ -19,8 +19,8 @@ passport.use(
       }
       const hashedPassword = await hash(password, 10);
       const newUser = { ...req.body, password: hashedPassword };
-      const newuserDB = await UserModel.create(newUser);
-      done(null, newuserDB);
+      const newUserDB = await UserModel.create(newUser);
+      done(null, newUserDB);
     }
   )
 );
@@ -49,7 +49,7 @@ passport.use(
 );
 
 passport.use(
-  "GitHub",
+  "github",
   new GitHubStrategy(
     {
       clientID: "Iv1.20237976621ec5c1",
@@ -67,7 +67,7 @@ passport.use(
           age: 0,
           role: "user",
         };
-        const dbResult = await UserModel.save(newUser);
+        const dbResult = await UserModel.create(newUser);
         done(null, dbResult);
       } else {
         done(null, user);
@@ -84,3 +84,6 @@ passport.deserializeUser(async (id, done) => {
   const user = await UserModel.findById(id);
   done(null, user);
 });
+
+// Export Passport instance
+export default passport;
