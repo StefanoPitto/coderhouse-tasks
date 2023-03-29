@@ -31,10 +31,7 @@ export class UsersManager {
     const userFromDb = await this.collection.findOne({ email: user.email });
     if (!userFromDb) throw new Error("Wrong username/password");
 
-    const isPasswordValid = await bcrypt.compare(
-      user.password,
-      userFromDb.password
-    );
+    const isPasswordValid = await compare(user.password, userFromDb.password);
     if (!isPasswordValid) throw new Error("Wrong username/password");
 
     return userFromDb;

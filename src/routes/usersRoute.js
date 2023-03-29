@@ -1,6 +1,4 @@
 import { Router } from "express";
-import { check } from "express-validator";
-import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 import { userManager } from "../dao/UsersManager.js";
 import { UserModel } from "../dao/models/user.model.js";
 import passport from "../passport/passport.js";
@@ -107,7 +105,7 @@ usersRouter.get(
   passport.authenticate("github", { scope: ["user:email"] })
 );
 usersRouter.get(
-  "/GitHub",
+  "/github",
   passport.authenticate("github", {
     failureRedirect: "/",
   }),

@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import { json, urlencoded } from "express";
 import { engine } from "express-handlebars";
 import { __dirname } from "./utils.js";
@@ -8,6 +9,7 @@ import { cartRouter } from "./routes/cartsRoute.js";
 import { manager } from "./dao/ProductManager.js";
 import { MessageModel } from "./dao/models/message.model.js";
 import { usersRouter } from "./routes/usersRoute.js";
+import { sessionRouter } from "./routes/sessionRoute.js";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
@@ -29,6 +31,7 @@ app.use(
     }),
   })
 );
+app.use(cookieParser());
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -70,6 +73,10 @@ app.use("/api/carts", cartRouter);
 //Auth Route
 
 app.use("/api/auth", usersRouter);
+
+//Session Route
+
+app.use("/api/session/", sessionRouter);
 
 //Lo mejor seria cambiar el puerto por una variable de entorno.
 
