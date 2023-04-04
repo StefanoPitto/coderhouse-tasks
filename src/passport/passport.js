@@ -2,7 +2,9 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GithubStrategy } from "passport-github2";
 import { UserModel } from "../dao/models/user.model.js";
-import { hash } from "bcrypt";
+import { hash, compare } from "bcrypt";
+import { secretKey } from "../utils.js";
+import jwt from "jsonwebtoken";
 
 passport.use(
   "register",
@@ -21,7 +23,7 @@ passport.use(
       const hashedPassword = await hash(password, 10);
       const newUser = {
         first_name: name.split(" ")[0],
-        last_name: name.split(" ")[1],
+        last_name: name.split(" ")[1] || "",
         age,
         email,
         password: hashedPassword,
@@ -42,38 +44,25 @@ passport.use(
       passwordField: "password",
       passReqToCallback: true,
     },
-    async (req, res, email, password, done) => {
+    async (req, email, password, done) => {
       try {
-        // Check if user exists in the database
-        const user = await User.findOne({ email });
+        const user = await UserModel.findOne({ email });
 
-        if (!user) {
-          return res.status(401).json({ message: "Invalid email or password" });
-        }
+        if (!user)
+          return done(null, false, { message: "Invalid email or password" });
 
-        // Check if the provided password matches the hashed password in the database
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await compare(password, user.password);
 
-        if (!isPasswordValid) {
-          return res.status(401).json({ message: "Invalid email or password" });
-        }
+        if (!isPasswordValid)
+          return done(null, false, { message: "Invalid email or password" });
 
-        // Generate a JWT token and send it back in the response
-        const token = jwt.sign({ userId: user._id }, "s3Cr3Tk3Y!&*S^F");
-        res.json({ token });
+        req.session.email = user.email;
+        req.session.password = user.password;
+        done(null, user._id);
       } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.log(error);
+        done(error);
       }
-      const user = await UserModel.findOne({ email });
-      if (user) {
-        return done(null, false);
-      }
-      const hashedPassword = await hash(password, 10);
-      const newUser = new UserModel({ ...user, password: hashedPassword });
-
-      await newUser.save();
-      res.redirect(`/user-profile?id=${userId}`);
-      done(null, newUser);
     }
   )
 );

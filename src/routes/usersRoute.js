@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, response } from "express";
 import { userManager } from "../dao/UsersManager.js";
 import { UserModel } from "../dao/models/user.model.js";
 import passport from "../passport/passport.js";
@@ -74,11 +74,9 @@ usersRouter.post(
   "/login",
   passport.authenticate("login", {
     failureRedirect: "/",
-    successRedirect: "/realTimeProducts",
-    passReqToCallback: true,
+    successRedirect: (req, res) => `/user-profile?id=${req.user.toString()}`,
   })
 );
-
 usersRouter.get("/:id", async (req, res) => {
   const userId = req.params.id;
   try {

@@ -9,7 +9,6 @@ form.addEventListener("submit", async (e) => {
     password: password.value,
   };
 
-  console.log("useeeeeeeeeeeeeeeeeeeeer", user);
   const res = await fetch("/api/auth/login", {
     method: "POST",
     body: JSON.stringify(user),
@@ -18,9 +17,5 @@ form.addEventListener("submit", async (e) => {
     },
   });
 
-  if (res.ok) {
-    const user = await res.json();
-    let userId = user._doc._id;
-    window.location.replace(`/user-profile?id=${userId}`);
-  }
+  console.log(res);
 });
