@@ -43,7 +43,8 @@ export class UsersManager {
     else
       return {
         id: user._id,
-        name: user.name,
+        first_name: user.first_name,
+        last_name: user.last_name,
         age: user.age,
         email: user.email,
         role: user.role,

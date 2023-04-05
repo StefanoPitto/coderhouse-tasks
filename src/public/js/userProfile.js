@@ -1,5 +1,6 @@
 const age = document.getElementById("age");
-const name = document.getElementById("name");
+const firstName = document.getElementById("first-name");
+const lastName = document.getElementById("last-name");
 const email = document.getElementById("email");
 const role = document.getElementById("role");
 const address = document.getElementById("address");
@@ -28,7 +29,9 @@ const id = urlParams.get("id");
 })();
 
 updateFields = (user) => {
-  name.innerHTML = user.name;
+  console.log(user);
+  firstName.innerHTML = user.first_name;
+  lastName.innerHTML = user.last_name;
   email.innerHTML = user.email;
   age.innerHTML = user.age;
   role.innerHTML = user.role;

@@ -15,6 +15,7 @@ passport.use(
     async (req, email, password, done) => {
       const user = await UserModel.findOne({ email });
       const { name, age, address, role } = req.body;
+      console.log("NAMEEEEEEEEE", name);
       if (user) {
         return done(null, false);
       }
