@@ -2,6 +2,7 @@ const form = document.getElementById("login-form");
 const email = document.getElementById("login-email");
 const password = document.getElementById("login-password");
 const githubLogin = document.getElementById("github-login");
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   let user = {
@@ -17,5 +18,7 @@ form.addEventListener("submit", async (e) => {
     },
   });
 
-  console.log(res);
+  if (res.ok) {
+    window.location.href = res.url;
+  }
 });

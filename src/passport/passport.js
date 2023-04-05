@@ -3,8 +3,6 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GithubStrategy } from "passport-github2";
 import { UserModel } from "../dao/models/user.model.js";
 import { hash, compare } from "bcrypt";
-import { secretKey } from "../utils.js";
-import jwt from "jsonwebtoken";
 
 passport.use(
   "register",
@@ -24,10 +22,10 @@ passport.use(
       const newUser = {
         first_name: name.split(" ")[0],
         last_name: name.split(" ")[1] || "",
-        age,
+        age: age || 0,
         email,
         password: hashedPassword,
-        address,
+        address: address || "",
         role,
       };
       const newUserDB = await UserModel.create(newUser);
@@ -68,6 +66,7 @@ passport.use(
 );
 
 passport.use(
+  "github",
   new GithubStrategy(
     {
       clientID: "Iv1.20237976621ec5c1",
@@ -80,8 +79,8 @@ passport.use(
         const newUser = {
           name: profile._json.name,
           email: profile._json.email,
-          password: " ",
-          address: " ",
+          password: "",
+          address: "",
           age: 0,
           role: "user",
         };

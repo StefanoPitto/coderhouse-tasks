@@ -55,28 +55,44 @@ export const usersRouter = Router();
 //   }
 // );
 
-usersRouter.post(
-  "/",
-  passport.authenticate("register", {
-    failureRedirect: "/",
-    successRedirect: "/realTimeProducts",
-    passReqToCallback: true,
-  }),
-  async (req, res) => {
-    req.session.email = req.user.email;
-    const userFromDb = await UserModel.findOne({ email: user.email });
-    console.log(userFromDb._id);
-    res.redirect(`/user-profile?id=${userFromDb._id}`);
-  }
-);
+usersRouter.post("/", async (req, res, next) => {
+  passport.authenticate(
+    "register",
+    {
+      failureRedirect: "/",
+    },
+    async (err, user) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.redirect("/");
+      }
+      req.session.email = user.email;
+      const userFromDb = await UserModel.findOne({ email: user.email });
+      res.redirect(`/user-profile?id=${userFromDb._id}`);
+    }
+  )(req, res, next);
+});
 
-usersRouter.post(
-  "/login",
-  passport.authenticate("login", {
-    failureRedirect: "/",
-    successRedirect: (req, res) => `/user-profile?id=${req.user.toString()}`,
-  })
-);
+usersRouter.post("/login", async (req, res, next) => {
+  passport.authenticate(
+    "login",
+    {
+      failureRedirect: "/",
+    },
+    (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.redirect("/");
+      }
+      res.redirect(`/user-profile?id=${user.toString()}`);
+    }
+  )(req, res, next);
+});
+
 usersRouter.get("/:id", async (req, res) => {
   const userId = req.params.id;
   try {

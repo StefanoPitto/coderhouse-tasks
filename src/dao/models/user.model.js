@@ -29,8 +29,6 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "carts",
   },
-
-  required: false,
 });
 
 export const UserModel = mongoose.model("User", userSchema);
