@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import { secretKey } from "../utils.js";
 export const validateJWT = (req, res, next) => {
   const token = req.header("x-token");
 
@@ -12,7 +11,7 @@ export const validateJWT = (req, res, next) => {
     });
   }
   try {
-    const { _id, name } = jwt.verify(token, secretKey);
+    const { _id, name } = jwt.verify(token, process.env.SECRET_KEY);
     req._id = _id;
     req.name = name;
   } catch (err) {
