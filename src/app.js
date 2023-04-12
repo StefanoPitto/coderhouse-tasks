@@ -14,20 +14,22 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import passport from "passport";
+import dotenv from "dotenv";
 import "./passport/passport.js";
 const app = express();
+
+const config = dotenv.config();
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
 app.use(
   session({
-    secret: "jbRjmQdINhx6mkMy",
+    secret: process.env.DB_PASSWORD,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://stefanopitto1:jbRjmQdINhx6mkMy@cluster0.vujisoj.mongodb.net/test",
+      mongoUrl: process.env.DB_URL,
     }),
   })
 );
@@ -80,21 +82,17 @@ app.use("/api/session/", sessionRouter);
 
 //Lo mejor seria cambiar el puerto por una variable de entorno.
 
-export const httpServer = app.listen(8080, (req, res) =>
-  console.log("Server running on port 8080")
+export const httpServer = app.listen(process.env.PORT, (req, res) =>
+  console.log(`Server running on port ${process.env.PORT}`)
 );
-
-//Connect to the DB
-
-const password = "jbRjmQdINhx6mkMy"; //Deberia ir en un .env
-const dbName = "ecommerce";
 
 mongoose.set("strictQuery", true); // agregue esta linea ya que me tiraba un warning en consola.
 mongoose
-  .connect(
-    `mongodb+srv://stefanopitto1:${password}@cluster0.vujisoj.mongodb.net/test`,
-    { dbName, useNewUrlParser: true, useUnifiedTopology: true }
-  )
+  .connect(process.env.DB_URL, {
+    dbName: process.env.DB_NAME,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to the DB"))
   .catch((e) => console.log("Error on connection to the DB", e));
 

@@ -3,8 +3,6 @@ import { fileURLToPath } from "url";
 import jwt from "jsonwebtoken";
 export const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export const secretKey = "8123nkasd9nmJDaksjdyjk89&*(&#!*#^)";
-
 export const generateToken = (user) => {
   return jwt.sign(
     {
@@ -14,7 +12,7 @@ export const generateToken = (user) => {
       email: user.email,
       address: user.address,
     },
-    secretKey,
+    process.env.SECRET_KEY,
     {
       expiresIn: "24h",
     }

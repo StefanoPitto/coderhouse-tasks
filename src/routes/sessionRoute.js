@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { generateToken, secretKey } from "../utils.js";
+import { generateToken } from "../utils.js";
 import { userManager } from "../dao/UsersManager.js";
 import { validateJWT } from "../middlewares/middleware.js";
 import jwt from "jsonwebtoken";
@@ -37,7 +37,7 @@ sessionRouter.get("/current", async (req, res) => {
   }
 
   try {
-    const user = jwt.verify(token, secretKey);
+    const user = jwt.verify(token, process.env.SECRET_KEY);
     return res.status(200).json({ userFromCookie: user });
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });
