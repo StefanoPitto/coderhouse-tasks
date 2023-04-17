@@ -15,7 +15,6 @@ passport.use(
     async (req, email, password, done) => {
       const user = await UserModel.findOne({ email });
       const { name, age, address, role } = req.body;
-      console.log("NAMEEEEEEEEE", name);
       if (user) {
         return done(null, false);
       }
@@ -31,8 +30,8 @@ passport.use(
       };
       const newUserDB = await UserModel.create(newUser);
       done(null, newUserDB);
-    }
-  )
+    },
+  ),
 );
 
 passport.use(
@@ -62,36 +61,38 @@ passport.use(
         console.log(error);
         done(error);
       }
-    }
-  )
+    },
+  ),
 );
 
 passport.use(
   "github",
   new GithubStrategy(
     {
-      clientID: "Iv1.20237976621ec5c1",
-      clientSecret: "f6162e1f7637528f37dd09967a0630b8ac2f6d86",
+      clientID: "Iv1.b31ec3fe2305a7b3",
+      clientSecret: "f747556b6aa038769714d1f6cdf431aba9f4b1c4",
       callbackURL: "http://localhost:8080/api/auth/github",
     },
     async (accessToken, refreshToken, profile, done) => {
       const user = await UserModel.findOne({ email: profile._json.email });
+      console.log(profile._json);
       if (!user) {
         const newUser = {
-          name: profile._json.name,
+          first_name: profile._json.name.split(" ")[0] || " ",
+          last_name: profile._json.name.split(" ")[1] || " ",
           email: profile._json.email,
-          password: "",
-          address: "",
+          password: " ",
+          address: " ",
           age: 0,
           role: "user",
         };
         const dbResult = await UserModel.create(newUser);
-        done(null, dbResult);
+        return done(null, dbResult);
       } else {
-        done(null, user);
+        return done(null, user);
       }
-    }
-  )
+    },
+  ),
 );
 
 passport.serializeUser((user, done) => {
@@ -103,5 +104,8 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-// Export Passport instance
-export default passport;
+//App ID: 315628
+
+//Client ID: Iv1.b31ec3fe2305a7b3
+
+//Client Secret:f747556b6aa038769714d1f6cdf431aba9f4b1c4
