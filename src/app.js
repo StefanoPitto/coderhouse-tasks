@@ -15,10 +15,14 @@ import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import passport from "passport";
 import dotenv from "dotenv";
+
+//Strategies
+
 import "./passport/passport.js";
+
 const app = express();
 
-const config = dotenv.config();
+dotenv.config();
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
@@ -31,7 +35,7 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.DB_URL,
     }),
-  })
+  }),
 );
 app.use(cookieParser());
 
@@ -78,12 +82,12 @@ app.use("/api/auth", usersRouter);
 
 //Session Route
 
-app.use("/api/session/", sessionRouter);
+app.use("/api/session", sessionRouter);
 
 //Lo mejor seria cambiar el puerto por una variable de entorno.
 
 export const httpServer = app.listen(process.env.PORT, (req, res) =>
-  console.log(`Server running on port ${process.env.PORT}`)
+  console.log(`Server running on port ${process.env.PORT}`),
 );
 
 mongoose.set("strictQuery", true); // agregue esta linea ya que me tiraba un warning en consola.
@@ -127,6 +131,7 @@ socketServer.on("connection", (socket) => {
     const newMessage = new MessageModel(message);
     await newMessage.save();
     const messagesArray = await MessageModel.find();
+    s;
     socketServer.emit("messageUpdate", messagesArray);
   });
 
