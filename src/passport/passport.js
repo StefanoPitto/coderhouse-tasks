@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GithubStrategy } from "passport-github2";
 import { UserModel } from "../dao/models/user.model.js";
 import { hash, compare } from "bcrypt";
-
+import jwt from "jsonwebtoken";
 passport.use(
   "register",
   new LocalStrategy(
@@ -28,6 +28,15 @@ passport.use(
         address: address || "",
         role,
       };
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user._id, role: user.role, email: user.email },
+        process.env.SECRET_KEY,
+      );
+      // Add token to session
+      req.session.token = token;
+      req.session.email = user.email;
+      req.session.password = user.password;
       const newUserDB = await UserModel.create(newUser);
       done(null, newUserDB);
     },
@@ -43,6 +52,7 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, email, password, done) => {
+      console.log(email);
       try {
         const user = await UserModel.findOne({ email });
 
@@ -53,9 +63,17 @@ passport.use(
 
         if (!isPasswordValid)
           return done(null, false, { message: "Invalid email or password" });
+        // Generate JWT token
+        const token = jwt.sign(
+          { userId: user._id, role: user.role, email: user.email },
+          process.env.SECRET_KEY,
+        );
 
+        // Add token to session
+        req.session.token = token;
         req.session.email = user.email;
         req.session.password = user.password;
+        console.log(req.session);
         done(null, user._id);
       } catch (error) {
         console.log(error);

@@ -16,7 +16,7 @@ const id = urlParams.get("id");
   const res = await fetch(`/api/auth/${id}`, {
     method: "GET",
   });
-
+  console.log(res, "RES");
   if (!res.ok) {
     throw new Error(`Error: ${res.status}`);
   }

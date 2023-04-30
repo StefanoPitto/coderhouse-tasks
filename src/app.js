@@ -15,10 +15,12 @@ import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import passport from "passport";
 import dotenv from "dotenv";
-
+import sharedsession from "express-socket.io-session";
 //Strategies
 
 import "./passport/passport.js";
+import { checkUser } from "./middlewares/verifyUser.js";
+import { checkAdmin } from "./middlewares/verifyAdmin.js";
 
 const app = express();
 
@@ -27,16 +29,17 @@ dotenv.config();
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
-app.use(
-  session({
-    secret: process.env.DB_PASSWORD,
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.DB_URL,
-    }),
+
+const sessionMiddleware = session({
+  secret: process.env.DB_PASSWORD,
+  resave: false,
+  saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: process.env.DB_URL,
   }),
-);
+});
+
+app.use(sessionMiddleware);
 app.use(cookieParser());
 
 app.use(passport.initialize());
@@ -103,9 +106,28 @@ mongoose
 //Socket
 
 export const socketServer = new Server(httpServer);
+socketServer.use(sharedsession(sessionMiddleware, { autoSave: true }));
 
 socketServer.on("connection", (socket) => {
   console.log("User connection");
+  console.log(socket.handshake.session);
+
+  socket.use((packet, next) => {
+    if (packet[0] === "message") {
+      if (checkUser(socket.handshake.session)) {
+        return next();
+      } else {
+        console.log("Not allowed to send messages");
+      }
+    } else if (packet[0] === "addProduct") {
+      if (checkAdmin(socket.handshake.session)) {
+        return next();
+      }
+      console.log("Not allowed to add products");
+    } else {
+      return next();
+    }
+  });
 
   socket.on("loadProductsOnConnection", async () => {
     let products = [];
@@ -131,7 +153,6 @@ socketServer.on("connection", (socket) => {
     const newMessage = new MessageModel(message);
     await newMessage.save();
     const messagesArray = await MessageModel.find();
-    s;
     socketServer.emit("messageUpdate", messagesArray);
   });
 
