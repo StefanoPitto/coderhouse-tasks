@@ -19,8 +19,8 @@ import sharedsession from "express-socket.io-session";
 //Strategies
 
 import "./passport/passport.js";
-import { checkUser } from "./middlewares/verifyUser.js";
-import { checkAdmin } from "./middlewares/verifyAdmin.js";
+import { checkUserSocket } from "./middlewares/verifyUser.js";
+import { checkAdminSocket } from "./middlewares/verifyAdmin.js";
 
 const app = express();
 
@@ -110,20 +110,19 @@ socketServer.use(sharedsession(sessionMiddleware, { autoSave: true }));
 
 socketServer.on("connection", (socket) => {
   console.log("User connection");
-  console.log(socket.handshake.session);
 
   socket.use((packet, next) => {
     if (packet[0] === "message") {
-      if (checkUser(socket.handshake.session)) {
+      if (checkUserSocket(socket.handshake.session)) {
         return next();
       } else {
-        console.log("Not allowed to send messages");
+        socket.emit("error", "Not allowed to send messages");
       }
     } else if (packet[0] === "addProduct") {
-      if (checkAdmin(socket.handshake.session)) {
+      if (checkAdminSocket(socket.handshake.session)) {
         return next();
       }
-      console.log("Not allowed to add products");
+      socket.emit("error", "Not allowed to add products");
     } else {
       return next();
     }
@@ -144,8 +143,7 @@ socketServer.on("connection", (socket) => {
       manager.addProduct({ ...product, status: true });
       socket.emit("productsUpdated", await manager.getProducts());
     } catch (error) {
-      console.log(error);
-      socket.emit("error", error);
+      socket.emit("error", "Not allowed to add products");
     }
   });
 

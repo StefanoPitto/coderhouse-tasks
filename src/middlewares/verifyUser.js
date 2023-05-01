@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
-export const checkUser = (socket, next) => {
-  console.log("KEY", process.env.SECRET_KEY);
+export const checkUserSocket = (socket) => {
   const { token } = socket;
 
   if (!token) {
@@ -9,7 +8,6 @@ export const checkUser = (socket, next) => {
 
   try {
     const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
-    console.log(decodedToken.role === "user");
     return decodedToken.role === "user";
   } catch (err) {
     return false;

@@ -1,23 +1,34 @@
 import jwt from "jsonwebtoken";
 
-export const checkAdmin = (req, res, next) => {
-  const token = req.cookies.token;
+export const checkAdminSocket = (socket) => {
+  const { token } = socket;
 
   if (!token) {
-    return res.status(401).json({ message: "Authentication failed" });
+    return false;
   }
 
   try {
-    const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
-
-    if (decodedToken.role !== "admin") {
-      return res
-        .status(403)
-        .json({ message: "You do not have the required permissions" });
-    }
-
-    next();
+    const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
+    console.log(decodedToken.role === "admin");
+    return decodedToken.role === "admin";
   } catch (err) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return false;
+  }
+};
+
+export const checkAdminRoutes = (req, res, next) => {
+  const { token } = socket;
+
+  if (!token) {
+    return res.status(403).json({ msg: "Not allowed." });
+  }
+
+  try {
+    const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
+    console.log(decodedToken.role === "user");
+    if (decodedToken.role === "admin") next();
+    else return res.status(403).json({ msg: "Not an ADMIN" });
+  } catch (err) {
+    console.log(err);
   }
 };

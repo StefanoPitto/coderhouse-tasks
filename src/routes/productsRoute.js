@@ -4,6 +4,7 @@ import { check } from "express-validator";
 import { verifyStringArray } from "../middlewares/verifyStringArray.js";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 import { socketServer } from "../app.js";
+import { checkAdminRoutes } from "../middlewares/verifyAdmin.js";
 
 export const productsRouter = Router();
 
@@ -16,7 +17,7 @@ productsRouter.get("/", async (req, res) => {
       sort,
       category,
       minPrice,
-      maxPrice
+      maxPrice,
     );
     if (limit) res.send(products.slice(0, limit));
     else res.send(products);
@@ -57,6 +58,7 @@ productsRouter.post(
     fieldsValidation,
   ],
   verifyStringArray,
+  checkAdminRoutes,
   async (req, res) => {
     const {
       title,
@@ -68,7 +70,6 @@ productsRouter.post(
       category,
       thumbnail,
     } = req.body;
-    console.log("body", req.body);
     try {
       await manager.addProduct({
         title,
@@ -86,10 +87,10 @@ productsRouter.post(
       res.status(409).send("The product already exists.");
     }
     socketServer.emit("productUpdate", await manager.getProducts());
-  }
+  },
 );
 
-productsRouter.put("/:pid", async (req, res) => {
+productsRouter.put("/:pid", checkAdminRoutes, async (req, res) => {
   const product = req.body;
   const id = req.params.pid;
   try {
@@ -102,7 +103,7 @@ productsRouter.put("/:pid", async (req, res) => {
   res.json({ msg: "Product updated successfully." });
 });
 
-productsRouter.delete("/:pid", async (req, res) => {
+productsRouter.delete("/:pid", checkAdminRoutes, async (req, res) => {
   const id = req.params.pid;
   try {
     await manager.deleteProduct(id);
