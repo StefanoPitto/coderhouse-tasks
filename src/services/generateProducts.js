@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+
 export const generateProducts = async () => {
   let products = [];
   for (let i = 0; i < 100; i++) {
@@ -8,14 +9,10 @@ export const generateProducts = async () => {
       description: faker.commerce.productDescription(),
       code: faker.helpers.slugify(faker.commerce.productName()),
       price: parseFloat(faker.commerce.price()),
-      stock: faker.random.number({ min: 1, max: 100 }),
-      status: faker.random.boolean(),
+      stock: faker.datatype.number({ min: 1, max: 100 }),
+      status: faker.datatype.boolean(),
       category: faker.commerce.department(),
-      thumbnails: [
-        faker.image.imageUrl(),
-        faker.image.imageUrl(),
-        faker.image.imageUrl(),
-      ],
+      thumbnails: [faker.image.imageUrl()],
     };
     let uniqueCode = faker.helpers.slugify(faker.commerce.productName());
     while (products.some((p) => p.code === uniqueCode)) {
@@ -24,6 +21,5 @@ export const generateProducts = async () => {
     product.code = uniqueCode;
     products.push(product);
   }
-  console.log(products, "PRODUCTOOOOOOOOOOOOS");
   return products;
 };

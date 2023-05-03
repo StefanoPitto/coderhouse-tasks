@@ -73,8 +73,8 @@ app.get("/user-profile", (req, res) => {
   res.render("userProfile");
 });
 
-app.get("/catalogue", (req, res) => {
-  res.render("catalogue");
+app.get("/catalog", (req, res) => {
+  res.render("catalog");
 });
 
 //Products ROUTE

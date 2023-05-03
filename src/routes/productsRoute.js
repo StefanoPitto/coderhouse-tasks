@@ -77,6 +77,15 @@ productsRouter.post(
     socketServer.emit("productUpdate", await manager.getProducts());
   },
 );
+productsRouter.get("/mockingproducts", async (req, res) => {
+  try {
+    const products = await generateProducts();
+    return res.status(200).json({ products });
+  } catch (err) {
+    console.log(err, "ERROR");
+    return res.status(400).json(err);
+  }
+});
 
 productsRouter.put("/:pid", checkAdminRoutes, async (req, res) => {
   const product = req.body;
@@ -103,15 +112,6 @@ productsRouter.delete("/:pid", checkAdminRoutes, async (req, res) => {
       .send("An error ocurred when trying to delete the product. ");
   }
   socketServer.emit("productUpdate", await manager.getProducts());
-});
-
-productsRouter.get("/mockingproducts", async (req, res) => {
-  try {
-    const products = await generateProducts();
-    return res.status(200).json({ products });
-  } catch (err) {
-    return res.status(400).json(err);
-  }
 });
 
 productsRouter.get("/:pid", async (req, res) => {
