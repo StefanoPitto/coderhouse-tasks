@@ -16,7 +16,6 @@ export class ProductManager {
 
     try {
       await newProduct.save();
-      console.log(newProduct);
     } catch (err) {
       throw new Error("Error when adding a new product!");
     }
@@ -29,7 +28,7 @@ export class ProductManager {
     sort = "asc",
     category,
     minPrice = 0,
-    maxPrice = 100000
+    maxPrice = 100000,
   ) => {
     const filter = {
       category: category || { $exists: true },
@@ -80,7 +79,7 @@ export class ProductManager {
     try {
       await this.collection.findOneAndUpdate(
         { id: newId },
-        { ...product._doc, ...info }
+        { ...product._doc, ...info },
       );
     } catch (error) {
       throw new Error("Error when trying to update the product!");

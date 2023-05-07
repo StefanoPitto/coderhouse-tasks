@@ -1,5 +1,6 @@
 import { UserModel } from "./models/user.model.js";
 import { hash, compare } from "bcrypt";
+import { userDTO } from "../dto/user.dto.js";
 export class UsersManager {
   constructor() {
     this.collection = UserModel;
@@ -21,7 +22,7 @@ export class UsersManager {
     try {
       await newUser.save();
       console.log(newUser);
-      return newUser;
+      return new userDTO(newUser);
     } catch (err) {
       throw new Error("Error when trying to create a new user.");
     }
@@ -34,22 +35,13 @@ export class UsersManager {
     const isPasswordValid = await compare(user.password, userFromDb.password);
     if (!isPasswordValid) throw new Error("Wrong username/password");
 
-    return userFromDb;
+    return new userDTO(userFromDb);
   };
 
   getUserById = async (id) => {
     const user = await this.collection.findById(id);
     if (!user) throw new Error("Error! user doesn't exist.");
-    else
-      return {
-        id: user._id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        age: user.age,
-        email: user.email,
-        role: user.role,
-        address: user.address,
-      };
+    else return new userDTO(user);
   };
 }
 

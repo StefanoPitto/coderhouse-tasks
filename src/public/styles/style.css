@@ -1,12 +1,83 @@
+html {
+  position: relative;
+}
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 body {
-  background-color: #f2f2f2;
   font-family: Arial, sans-serif;
   font-size: 16px;
+  line-height: 1.4;
+  background-color: #fff;
+  color: #444;
+  min-height: calc(100vh - 80px - 80px);
+}
+.navbar {
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
+  height: 60px;
+}
+
+.navbar-title {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+ul {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin: 0 10px;
+}
+
+a {
+  display: inline-block;
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  border-radius: 4px;
+  background-color: #1abc9c;
+  transition: background-color 0.3s;
+}
+
+a:hover {
+  background-color: #3e8e41;
+}
+
+.main-content {
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 40px;
+  margin-bottom: 100px;
+  padding: 20px;
+  color: #333;
+}
+
+/* Footer styles */
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 20px;
 }
 
 form {

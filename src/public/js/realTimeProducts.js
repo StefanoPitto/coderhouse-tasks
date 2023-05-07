@@ -26,7 +26,7 @@ socket.on("connect", () => {
           <p class="product-price">$${product.price.toFixed(2)}</p>
           <p class="product-stock">${product.stock}</p>
           <p class="product-category">${product.category}</p>
-        </div>`
+        </div>`,
       )
       .join("");
     realTimeContainer.innerHTML = html;
@@ -40,7 +40,7 @@ socket.on("connect", () => {
         <p class="product-price">$${product.price.toFixed(2)}</p>
         <p class="product-stock">${product.stock}</p>
         <p class="product-category">${product.category}</p>
-      </div>`
+      </div>`,
       )
       .join("");
     realTimeContainer.innerHTML = html;
@@ -88,3 +88,12 @@ resetInputs = () => {
   thumbnails = "";
   thumbnailContainer.innerHTML = "";
 };
+
+socket.on("error", (error) => {
+  Swal.fire({
+    icon: "error",
+    title: "Oops...",
+    text: "Something went wrong!",
+    footer: error,
+  });
+});
