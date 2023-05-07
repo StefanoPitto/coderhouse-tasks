@@ -5,6 +5,7 @@ import { verifyStringArray } from "../middlewares/verifyStringArray.js";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 import { socketServer } from "../app.js";
 import { checkAdminRoutes } from "../middlewares/verifyAdmin.js";
+import { generateProducts } from "../services/generateProducts.js";
 
 export const productsRouter = Router();
 
@@ -28,19 +29,6 @@ productsRouter.get("/", async (req, res) => {
     res.status(400).json({
       msg: "Error on request!",
       error: errorMessage,
-    });
-  }
-});
-
-productsRouter.get("/:pid", async (req, res) => {
-  const { pid } = req.params;
-  try {
-    const product = await manager.getProductById(parseInt(pid));
-    if (product) res.send(product);
-    else res.send("Product does not exist.");
-  } catch (error) {
-    res.status(400).json({
-      msg: "Error when trying to get the products",
     });
   }
 });
@@ -89,6 +77,15 @@ productsRouter.post(
     socketServer.emit("productUpdate", await manager.getProducts());
   },
 );
+productsRouter.get("/mockingproducts", async (req, res) => {
+  try {
+    const products = await generateProducts();
+    return res.status(200).json({ products });
+  } catch (err) {
+    console.log(err, "ERROR");
+    return res.status(400).json(err);
+  }
+});
 
 productsRouter.put("/:pid", checkAdminRoutes, async (req, res) => {
   const product = req.body;
@@ -115,4 +112,17 @@ productsRouter.delete("/:pid", checkAdminRoutes, async (req, res) => {
       .send("An error ocurred when trying to delete the product. ");
   }
   socketServer.emit("productUpdate", await manager.getProducts());
+});
+
+productsRouter.get("/:pid", async (req, res) => {
+  const { pid } = req.params;
+  try {
+    const product = await manager.getProductById(parseInt(pid));
+    if (product) res.send(product);
+    else res.send("Product does not exist.");
+  } catch (error) {
+    res.status(400).json({
+      msg: "Error when trying to get the products",
+    });
+  }
 });
