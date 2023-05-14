@@ -5,7 +5,6 @@ const catalogue = document.getElementById("container");
     "http://localhost:8080/api/products/mockingproducts",
   );
   const products = await response.json();
-  console.log(products, "prodddd");
   const productsHtml = products.products
     .map(
       (product) =>
