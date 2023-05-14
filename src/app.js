@@ -73,6 +73,10 @@ app.get("/user-profile", (req, res) => {
   res.render("userProfile");
 });
 
+app.get("/catalog", (req, res) => {
+  res.render("catalog");
+});
+
 //Products ROUTE
 app.use("/api/products", productsRouter);
 
