@@ -13,21 +13,23 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, email, password, done) => {
-      const user = await UserModel.findOne({ email });
+      let user = await UserModel.findOne({ email });
       const { name, age, address, role } = req.body;
       if (user) {
         return done(null, false);
+      } else{
+        const hashedPassword = await hash(password, 10);
+        const newUser = {
+          first_name: name.split(" ")[0],
+          last_name: name.split(" ")[1] ? name.split(" ")[1] : " ",
+          age: age || 0,
+          email,
+          password: hashedPassword,
+          address: address || "",
+          role,
+        };
+         user = await UserModel.create(newUser);
       }
-      const hashedPassword = await hash(password, 10);
-      const newUser = {
-        first_name: name.split(" ")[0],
-        last_name: name.split(" ")[1] || "",
-        age: age || 0,
-        email,
-        password: hashedPassword,
-        address: address || "",
-        role,
-      };
       // Generate JWT token
       const token = jwt.sign(
         { userId: user._id, role: user.role, email: user.email },
@@ -37,7 +39,6 @@ passport.use(
       req.session.token = token;
       req.session.email = user.email;
       req.session.password = user.password;
-      const newUserDB = await UserModel.create(newUser);
       done(null, newUserDB);
     },
   ),
