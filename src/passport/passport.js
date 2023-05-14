@@ -17,7 +17,7 @@ passport.use(
       const { name, age, address, role } = req.body;
       if (user) {
         return done(null, false);
-      } else{
+      }
         const hashedPassword = await hash(password, 10);
         const newUser = {
           first_name: name.split(" ")[0],
@@ -29,7 +29,7 @@ passport.use(
           role,
         };
          user = await UserModel.create(newUser);
-      }
+      
       // Generate JWT token
       const token = jwt.sign(
         { userId: user._id, role: user.role, email: user.email },
@@ -39,7 +39,7 @@ passport.use(
       req.session.token = token;
       req.session.email = user.email;
       req.session.password = user.password;
-      done(null, newUserDB);
+      done(null,user);
     },
   ),
 );
