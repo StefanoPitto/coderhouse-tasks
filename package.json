@@ -37,6 +37,14 @@
     "passport-github2": "^0.1.12",
     "passport-local": "^1.0.0",
     "socket.io": "^4.5.4",
+<<<<<<< Updated upstream
     "uuidv4": "^6.2.13"
+=======
+    "uuidv4": "^6.2.13",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0"
+>>>>>>> Stashed changes
   }
 }
