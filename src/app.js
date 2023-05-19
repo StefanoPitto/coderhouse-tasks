@@ -85,6 +85,11 @@ app.get("/token",(req,res)=>{
   res.render('token');
 })
 
+app.get("/change-password",(req,res)=>{
+  res.render('changePassword');
+})
+
+
 //Products ROUTE
 app.use("/api/products", productsRouter);
 

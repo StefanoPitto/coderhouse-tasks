@@ -46,6 +46,8 @@ export class UsersManager {
     else return new userDTO(user);
   };
 
+  
+
   recoverPassword = async (email) => {
     const userFromDB = await UserModel.findOne({ email });
   
@@ -53,7 +55,7 @@ export class UsersManager {
       // Generate a random token
       const token = CryptoJS.lib.WordArray.random(20).toString();
   
-      // Set the token in the user's account
+      // Set the token and its expiration in the user's account
       userFromDB.passwordResetToken = token;
       userFromDB.passwordResetTokenExpiration = Date.now() + 3600000; // Token expires in 1 hour
   
@@ -100,15 +102,16 @@ export class UsersManager {
     } else {
       throw new Error('User does not exist.');
     }
-  }
-
-
-  handlePasswordResetRequest = async (token) =>{
-   
+  };
+  
+  handlePasswordResetRequest = async (token) => {
     try {
-      const userFromDB = await UserModel.findOne({ passwordResetToken: token });
-      console.log(userFromDB)
-      if (userFromDB && userFromDB.passwordResetTokenExpiration > Date.now()) {
+      const userFromDB = await UserModel.findOne({
+        passwordResetToken: token,
+        passwordResetTokenExpiration: { $gt: Date.now() } // Ensure token is not expired
+      });
+  
+      if (userFromDB) {
         // Token is valid, redirect to password change page
         return true;
       } else {
@@ -118,8 +121,42 @@ export class UsersManager {
     } catch (error) {
       throw new Error('Server error.');
     }
-  }
+  };
+
+  updateUserPasswordFromToken = async (password,token) => {
+
+    let hashedPassword;
+    try {
+      hashedPassword = await hash(password, this.saltRounds);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error when hashing the password.");
+    }
+
+    try {
+      const userFromDB = await UserModel.findOne({ passwordResetToken: token });
+  
+      if (userFromDB && userFromDB.passwordResetTokenExpiration > Date.now()) {
+        // Token is valid, update the password
+        userFromDB.password = hashedPassword;
+        userFromDB.passwordResetToken = null;
+        userFromDB.passwordResetTokenExpiration = null;
+        await userFromDB.save();     
+      } else {
+        // Invalid token or expired
+        throw new Error( 'Invalid or expired token.' );
+      }
+    } catch (error) {
+      throw new Error('Server Error');
+    }
+
+
+
 
   }
+
+
+
+}
 
 export const userManager = new UsersManager();

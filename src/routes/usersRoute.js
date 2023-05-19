@@ -61,9 +61,7 @@ usersRouter.post("/login", async (req, res, next) => {
 });
 
 usersRouter.post('/reset-password', async (req, res) => {
-
   const { token } = req.body;
-  console.log(req)
   try {
     await userManager.handlePasswordResetRequest(token);
     res.redirect(`/change-password?token=${token}`);
@@ -72,15 +70,41 @@ usersRouter.post('/reset-password', async (req, res) => {
   }
 });
 
-usersRouter.get("/:id", async (req, res) => {
-  const userId = req.params.id;
+usersRouter.post("/forgot-password", async (req,res)=>{
+  const {email} = req.body;
+  try{
+    userManager.recoverPassword(email);
+  }catch(error){
+    res.status(400).json({msg:'User does not exists.'})
+  }
+
+
+})
+
+usersRouter.post('/change-password', async (req, res) => {
+  const { password, token } = req.body;
+
   try {
-    const user = await userManager.getUserById(userId);
-    res.status(200).json({ ...user });
+    const userFromDB = await UserModel.findOne({ passwordResetToken: token });
+
+    if (userFromDB && userFromDB.passwordResetTokenExpiration > Date.now()) {
+      // Token is valid, update the password
+      userFromDB.password = password;
+      userFromDB.passwordResetToken = null;
+      userFromDB.passwordResetTokenExpiration = null;
+      await userFromDB.save();
+      
+      // Password changed successfully
+      res.sendStatus(200);
+    } else {
+      // Invalid token or expired
+      res.status(400).json({ msg: 'Invalid or expired token.' });
+    }
   } catch (error) {
-    res.status(500).json({ msg: "Error!" });
+    res.status(500).json({ msg: 'Server error.' });
   }
 });
+
 
 usersRouter.post("/logout", async (req, res) => {
   req.session.destroy((err) => {
@@ -94,14 +118,13 @@ usersRouter.post("/logout", async (req, res) => {
 });
 
 
-usersRouter.post("/forgot-password", async (req,res)=>{
-  const {email} = req.body;
-  try{
-    userManager.recoverPassword(email);
-  }catch(error){
-    res.status(400).json({msg:'User does not exists.'})
+
+usersRouter.get("/:id", async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await userManager.getUserById(userId);
+    res.status(200).json({ ...user });
+  } catch (error) {
+    res.status(500).json({ msg: "Error!" });
   }
-
-
-})
-
+});

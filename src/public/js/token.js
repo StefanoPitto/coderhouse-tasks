@@ -4,12 +4,18 @@ const form = document.getElementById('token-form')
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+  console.log(token.value)
+  const obj = {token:token.value}
+  console.log(obj)
   try {
-    const res = await fetch(`/api/auth/reset-password`, {
+    const res = await fetch('/api/auth/reset-password', {
       method: 'POST',
-      body:JSON.stringify({token:token.value})
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(obj)
     });
-    console.log(res, "res");
+    console.log(res)
     if (res.ok) {
       window.location.href = res.url;
     }
