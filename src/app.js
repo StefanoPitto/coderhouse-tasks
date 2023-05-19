@@ -77,6 +77,14 @@ app.get("/catalog", (req, res) => {
   res.render("catalog");
 });
 
+app.get("/recover-password", (req,res)=>{
+  res.render('recoverPassword');
+});
+
+app.get("/token",(req,res)=>{
+  res.render('token');
+})
+
 //Products ROUTE
 app.use("/api/products", productsRouter);
 

@@ -60,6 +60,18 @@ usersRouter.post("/login", async (req, res, next) => {
   )(req, res, next);
 });
 
+usersRouter.post('/reset-password', async (req, res) => {
+
+  const { token } = req.body;
+  console.log(req)
+  try {
+    await userManager.handlePasswordResetRequest(token);
+    res.redirect(`/change-password?token=${token}`);
+  } catch (error) {
+    res.status(400).json({ msg: 'Error', error: error });
+  }
+});
+
 usersRouter.get("/:id", async (req, res) => {
   const userId = req.params.id;
   try {
@@ -80,3 +92,16 @@ usersRouter.post("/logout", async (req, res) => {
     }
   });
 });
+
+
+usersRouter.post("/forgot-password", async (req,res)=>{
+  const {email} = req.body;
+  try{
+    userManager.recoverPassword(email);
+  }catch(error){
+    res.status(400).json({msg:'User does not exists.'})
+  }
+
+
+})
+
