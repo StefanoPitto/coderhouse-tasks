@@ -73,7 +73,8 @@ usersRouter.post('/reset-password', async (req, res) => {
 usersRouter.post("/forgot-password", async (req,res)=>{
   const {email} = req.body;
   try{
-    userManager.recoverPassword(email);
+    await userManager.recoverPassword(email);
+    res.status(200).json({msg:"Email, was sent"})
   }catch(error){
     res.status(400).json({msg:'User does not exists.'})
   }
@@ -85,26 +86,13 @@ usersRouter.post('/change-password', async (req, res) => {
   const { password, token } = req.body;
 
   try {
-    const userFromDB = await UserModel.findOne({ passwordResetToken: token });
-
-    if (userFromDB && userFromDB.passwordResetTokenExpiration > Date.now()) {
-      // Token is valid, update the password
-      userFromDB.password = password;
-      userFromDB.passwordResetToken = null;
-      userFromDB.passwordResetTokenExpiration = null;
-      await userFromDB.save();
-      
-      // Password changed successfully
-      res.sendStatus(200);
-    } else {
-      // Invalid token or expired
-      res.status(400).json({ msg: 'Invalid or expired token.' });
-    }
+      const userFromDb = await userManager.updateUserPasswordFromToken(password,token);
+      res.redirect(`/user-profile?id=${userFromDb._id}`);
+    
   } catch (error) {
-    res.status(500).json({ msg: 'Server error.' });
-  }
-});
-
+    res.status(400).json({ msg: 'Invalid or expired token.' });
+  };
+})
 
 usersRouter.post("/logout", async (req, res) => {
   req.session.destroy((err) => {

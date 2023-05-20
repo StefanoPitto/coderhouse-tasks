@@ -21,21 +21,22 @@ form.addEventListener('submit', async (e) => {
         },
         body: JSON.stringify(data)
       });
-      
       if (response.ok) {
-        // Password changed successfully
-        window.location.href = '/success-page'; // Redirect to success page
+          console.log('response',response)
+        // Show success alert and redirect on success
+        Swal.fire('Success', 'Password updated successfully', 'success').then(() => {
+          window.location.href = response.url;
+        });
       } else {
-        // Handle error case
-        const errorData = await response.json();
-        console.log(errorData.msg);
+        // Show error alert on failure
+        Swal.fire('Error', 'Failed to update password', 'error');
       }
     } catch (error) {
+      // Show error alert on exception
+      Swal.fire('Error', 'An error occurred', 'error');
       console.error(error);
     }
-  } else {
-    errorMessage.style.display = 'block';
-  }
+}
 });
 
 function getTokenFromURL() {

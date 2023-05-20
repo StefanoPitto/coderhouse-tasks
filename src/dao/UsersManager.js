@@ -138,10 +138,12 @@ export class UsersManager {
   
       if (userFromDB && userFromDB.passwordResetTokenExpiration > Date.now()) {
         // Token is valid, update the password
+        console.log('hashedPass',hashedPassword)
         userFromDB.password = hashedPassword;
         userFromDB.passwordResetToken = null;
         userFromDB.passwordResetTokenExpiration = null;
         await userFromDB.save();     
+        return userFromDB;
       } else {
         // Invalid token or expired
         throw new Error( 'Invalid or expired token.' );
