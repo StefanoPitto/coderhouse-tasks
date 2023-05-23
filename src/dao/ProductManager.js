@@ -4,7 +4,6 @@ import { ProductModel } from "./models/product.model.js";
 export class ProductManager {
   constructor() {
     this.collection = ProductModel;
-    this.setCounter();
   }
   addProduct = async (product) => {
     const item = await this.collection.findOne({ code: product.code });
