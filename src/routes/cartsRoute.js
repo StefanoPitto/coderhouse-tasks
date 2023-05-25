@@ -4,7 +4,24 @@ import { cartManager } from "../dao/CartManager.js";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 
 export const cartRouter = Router();
-
+/**
+ * @swagger
+ * /carts:
+ *   post:
+ *     summary: Create a new cart
+ *     description: Creates a new cart.
+ *     responses:
+ *       200:
+ *         description: Cart created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                   description: Success message.
+ */
 cartRouter.post("/", async (req, res) => {
   try {
     await cartManager.createCart();
@@ -14,7 +31,35 @@ cartRouter.post("/", async (req, res) => {
     console.log("Error when adding a new cart");
   }
 });
-
+/**
+ * @swagger
+ * /carts/{cid}:
+ *   get:
+ *     summary: Get a cart by ID
+ *     description: Retrieves a cart based on the provided ID.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Cart ID
+ *     responses:
+ *       200:
+ *         description: Cart obtained successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 cart:
+ *                   $ref: '#/components/schemas/Cart'
+ *                 msg:
+ *                   type: string
+ *                   description: Success message.
+ *       404:
+ *         description: Cart not found.
+ */
 cartRouter.get("/:cid", async (req, res) => {
   const { cid } = req.params;
   try {
@@ -26,7 +71,49 @@ cartRouter.get("/:cid", async (req, res) => {
     console.log(error);
   }
 });
-
+/**
+ * @swagger
+ * /carts/{cid}/products/{pid}:
+ *   post:
+ *     summary: Add product to cart
+ *     description: Adds a product to the specified cart.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Cart ID
+ *       - in: path
+ *         name: pid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quantity:
+ *                 type: number
+ *                 description: Quantity of the product to add to the cart.
+ *     responses:
+ *       200:
+ *         description: Product added successfully to the cart.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                   description: Success message.
+ *       400:
+ *         description: Invalid request or insufficient stock.
+ */
 cartRouter.post(
   "/:cid/products/:pid",
   [check("quantity").isNumeric(), fieldsValidation],
@@ -44,6 +131,38 @@ cartRouter.post(
   },
 );
 
+
+/**
+ * @swagger
+ * /carts/{cid}/purchase:
+ *   post:
+ *     summary: Purchase cart
+ *     description: Processes the purchase of the specified cart.
+ *     parameters:
+ *       - in: path
+ *         name: cid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Cart ID
+ *     responses:
+ *       200:
+ *         description: Purchase successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message.
+ *       400:
+ *         description: Invalid cart or insufficient stock.
+ *       404:
+ *         description: Cart not found or product not found.
+ *       500:
+ *         description: Server error.
+ */
 cartRouter.post("/:cid/purchase", async (req, res) => {
   try {
     const cartId = req.params.cid;

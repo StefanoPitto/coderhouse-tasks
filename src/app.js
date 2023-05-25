@@ -21,7 +21,8 @@ import sharedsession from "express-socket.io-session";
 import "./passport/passport.js";
 import { checkUserSocket } from "./middlewares/verifyUser.js";
 import { checkAdminSocket } from "./middlewares/verifyAdmin.js";
-
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from "./swagger/swaggerConfig.js";
 const app = express();
 
 dotenv.config();
@@ -44,6 +45,10 @@ app.use(cookieParser());
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Serve Swagger API documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
