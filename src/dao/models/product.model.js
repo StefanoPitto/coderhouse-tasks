@@ -42,9 +42,7 @@ const productSchema = new mongoose.Schema({
     type: [String],
   },
   owner:{
-    type:mongoose.Schema.Types.ObjectId,
-    unique:true,
-    ref:'User',
+    email: String
   }
 });
 productSchema.plugin(mongoosePaginate);

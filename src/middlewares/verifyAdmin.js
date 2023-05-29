@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { ProductModel } from "../dao/models/product.model.js"
 
 export const checkAdminSocket = (socket) => {
   const { token } = socket;
@@ -17,8 +18,7 @@ export const checkAdminSocket = (socket) => {
 };
 
 export const checkAdminRoutes = (req, res, next) => {
-  const { token } = socket;
-
+  let token = req.session.token
   if (!token) {
     return res.status(403).json({ msg: "Not allowed." });
   }
@@ -28,6 +28,31 @@ export const checkAdminRoutes = (req, res, next) => {
     console.log(decodedToken.role === "user");
     if (decodedToken.role === "admin") next();
     else return res.status(403).json({ msg: "Not an ADMIN" });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const checkDeleteProduct = async (req, res, next) => {
+  let token = req.session.token
+ 
+  if (!token) {
+    return res.status(403).json({ msg: "Not allowed." });
+  }
+
+  try {
+    const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
+    console.log(decodedToken.role === "user");
+    if (decodedToken.role === "admin") next()
+    else {
+      if(decodedToken.role ==="user") return res.status(403).json({ msg: "Not an ADMIN" });
+      
+     const productDB  = await ProductModel.findOne({id:req.params.pid});
+
+      if(productDB.owner.email === req.session.email) next();
+      else return res.status(403).json({ msg: "The user is not the product owner" });
+
+    }
   } catch (err) {
     console.log(err);
   }
