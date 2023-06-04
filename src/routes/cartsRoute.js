@@ -24,9 +24,9 @@ export const cartRouter = Router();
  */
 cartRouter.post("/", async (req, res) => {
   try {
-    await cartManager.createCart();
+    let id = await cartManager.createCart();
     res.statusCode = 200;
-    res.json({ msg: "Cart created successfully" });
+    res.json({ msg: "Cart created successfully",id });
   } catch (error) {
     console.log("Error when adding a new cart");
   }

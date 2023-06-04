@@ -158,6 +158,15 @@ export class UsersManager {
   }
 
 
+  updatePremiumUser = async (id) => {
+    const userFromDB = await UserModel.findOne({ _id:id});
+    if(!userFromDB) throw new Error('User does not exist');
+    userFromDB.role= userFromDB.role === 'premium' ? 'user': 'premium';
+    await userFromDB.save();
+  
+  }
+
+
 
 }
 

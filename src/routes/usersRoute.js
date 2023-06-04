@@ -65,7 +65,7 @@ usersRouter.post("/", async (req, res, next) => {
       }
       req.session.email = user.email;
       const userFromDb = await UserModel.findOne({ email: user.email });
-      res.redirect(`/user-profile?id=${userFromDb._id}`);
+      res.status(200).redirect(`/user-profile?id=${userFromDb._id}`);
     },
   )(req, res, next);
 });
@@ -181,6 +181,19 @@ usersRouter.post("/logout", async (req, res) => {
     }
   });
 });
+
+usersRouter.get("/premium/:uid", async (req,res)=>{
+  const userId = req.params.uid;
+
+try{
+  await userManager.updatePremiumUser(userId)
+  res.status(200).json({ok:true,msg:'Role updated'});
+}catch(error){
+  console.log(error);
+  res.status(400).json({ok:false,msg:'Wrong user'});
+}
+})
+
 
 /**
  * @swagger
