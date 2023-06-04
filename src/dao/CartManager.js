@@ -7,39 +7,35 @@ class CartManager {
     this.collection = CartModel;
   }
 
-  createCart = async () => {
-    const newCart = new CartModel({ id: this.counter, cart: [] });
-    try {
-      await newCart.save();
-    } catch (error) {
-      throw new Error("Error when trying to create a new cart!");
-    }
-    this.counter++;
-  };
+createCart = async () => {
+  const newCart = new CartModel({ cart: [] });
+  try {
+    const savedCart = await newCart.save();
+    return savedCart._id; // Return the generated MongoDB _id
+  } catch (error) {
+    console.error("Error when trying to create a new cart:", error);
+    throw new Error("Error when trying to create a new cart!");
+  }
+};
+
 
   addProductToCart = async (cartId, productId, quantity) => {
-    let id = parseInt(cartId);
-    let pid = parseInt(productId);
+  const cart = await CartModel.findById(cartId);
+  if (!cart) throw new Error("Cart does not exist!");
 
-    const cart = await this.collection.findOne({ id });
-    if (!cart) throw new Error("Cart does not exist!");
-    try {
-      let products;
-      cart._doc.cart.products
-        ? (products = cart._doc.cart.products)
-        : (products = new Array());
-      let productIndex = products.findIndex((elem) => elem.id === pid);
-      if (productIndex !== -1) products[productIndex].quantity += quantity;
-      else products.push({ id: pid, quantity });
-      const updatedCart = await this.collection.findOneAndUpdate(
-        { id },
-        { id, cart: { products } },
-        { new: true }
-      );
-    } catch (error) {
-      throw new Error("Error when trying to add the product to the cart.");
-    }
-  };
+  try {
+    let products = cart.cart.products || [];
+    let productIndex = products.findIndex((elem) => elem.id === productId);
+    if (productIndex !== -1) products[productIndex].quantity += quantity;
+    else products.push({ id: productId, quantity });
+    cart.cart.products = products;
+    await cart.save();
+  } catch (error) {
+    console.error("Error when trying to add the product to the cart:", error);
+    throw new Error("Error when trying to add the product to the cart.");
+  }
+};
+
 
   getCartById = async (id) => {
     const cart = await this.collection.findOne({ id });
