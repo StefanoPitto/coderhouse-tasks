@@ -8,7 +8,49 @@ import { checkAdminRoutes, checkDeleteProduct } from "../middlewares/verifyAdmin
 import { generateProducts } from "../services/generateProducts.js";
 
 export const productsRouter = Router();
-
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Get products
+ *     description: Retrieves a list of products based on the provided query parameters.
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *         description: Number of products to limit the result.
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: number
+ *         description: Page number for pagination.
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *         description: Sorting criteria for the products.
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Category filter for the products.
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Minimum price filter for the products.
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Maximum price filter for the products.
+ *     responses:
+ *       200:
+ *         description: List of products.
+ *       400:
+ *         description: Error on request.
+ */
 productsRouter.get("/", async (req, res) => {
   const { limit, page, sort, category, minPrice, maxPrice } = req.query;
   try {
@@ -32,7 +74,24 @@ productsRouter.get("/", async (req, res) => {
     });
   }
 });
-
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Add a new product
+ *     description: Adds a new product with the provided details.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Product'
+ *     responses:
+ *       200:
+ *         description: Product added successfully.
+ *       409:
+ *         description: The product already exists.
+ */
 productsRouter.post(
   "/",
   [
@@ -77,6 +136,19 @@ productsRouter.post(
     socketServer.emit("productUpdate", await manager.getProducts());
   },
 );
+
+/**
+ * @swagger
+ * /products/mockingproducts:
+ *   get:
+ *     summary: Get mocked products
+ *     description: Retrieves a list of mocked products for testing purposes.
+ *     responses:
+ *       200:
+ *         description: List of mocked products.
+ *       400:
+ *         description: Error occurred when generating mocked products.
+ */
 productsRouter.get("/mockingproducts", async (req, res) => {
   try {
     const products = await generateProducts();
@@ -86,7 +158,31 @@ productsRouter.get("/mockingproducts", async (req, res) => {
     return res.status(400).json(err);
   }
 });
-
+/**
+ * @swagger
+ * /products/{pid}:
+ *   put:
+ *     summary: Update a product
+ *     description: Updates the details of the specified product.
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Product'
+ *     responses:
+ *       200:
+ *         description: Product updated successfully.
+ *       404:
+ *         description: Product not found.
+ */
 productsRouter.put("/:pid", checkAdminRoutes, async (req, res) => {
   const product = req.body;
   const id = req.params.pid;
@@ -100,6 +196,25 @@ productsRouter.put("/:pid", checkAdminRoutes, async (req, res) => {
   res.json({ msg: "Product updated successfully." });
 });
 
+/**
+ * @swagger
+ * /products/{pid}:
+ *   delete:
+ *     summary: Delete a product
+ *     description: Deletes the specified product.
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product deleted successfully.
+ *       404:
+ *         description: An error occurred when trying to delete the product.
+ */
 productsRouter.delete("/:pid", checkDeleteProduct, async (req, res) => {
   const id = req.params.pid;
   console.log(req.session.email);
@@ -114,7 +229,25 @@ productsRouter.delete("/:pid", checkDeleteProduct, async (req, res) => {
   }
   socketServer.emit("productUpdate", await manager.getProducts());
 });
-
+/**
+ * @swagger
+ * /products/{pid}:
+ *   get:
+ *     summary: Get a product
+ *     description: Retrieves the details of the specified product.
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product details.
+ *       400:
+ *         description: Error when trying to get the product.
+ */
 productsRouter.get("/:pid", async (req, res) => {
   const { pid } = req.params;
   try {
