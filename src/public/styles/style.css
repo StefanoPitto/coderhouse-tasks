@@ -301,3 +301,20 @@ ion-icon {
   height: auto;
   margin-bottom: 10px;
 }
+
+.recover-password-p{
+margin: 10 auto;
+text-align: center;
+}
+
+.recover-password-p a {
+background-color: transparent;
+color:#000000;
+font-weight: bold;
+}
+
+
+.recover-password-p a:hover{
+  text-decoration: underline;
+  background-color: transparent;
+}

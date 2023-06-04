@@ -4,7 +4,6 @@ import { ProductModel } from "./models/product.model.js";
 export class ProductManager {
   constructor() {
     this.collection = ProductModel;
-    this.setCounter();
   }
   addProduct = async (product) => {
     const item = await this.collection.findOne({ code: product.code });
@@ -61,7 +60,7 @@ export class ProductManager {
     return product;
   };
 
-  deleteProduct = async (id) => {
+  deleteProduct = async (id,role) => {
     let newId = parseInt(id);
     const product = await this.collection.findOne({ id: newId });
     if (!product) throw new Error("Product does not exist.");

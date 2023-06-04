@@ -22,13 +22,15 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "admin"],
+    enum: ["user", "admin","premium"],
     default: "user",
   },
   cartId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "carts",
   },
+  passwordResetToken: String,
+  passwordResetTokenExpiration: Date,
 });
 
 export const UserModel = mongoose.model("User", userSchema);

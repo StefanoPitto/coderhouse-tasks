@@ -4,7 +4,7 @@ import { check } from "express-validator";
 import { verifyStringArray } from "../middlewares/verifyStringArray.js";
 import { fieldsValidation } from "../middlewares/fieldsValidation.js";
 import { socketServer } from "../app.js";
-import { checkAdminRoutes } from "../middlewares/verifyAdmin.js";
+import { checkAdminRoutes, checkDeleteProduct } from "../middlewares/verifyAdmin.js";
 import { generateProducts } from "../services/generateProducts.js";
 
 export const productsRouter = Router();
@@ -100,8 +100,9 @@ productsRouter.put("/:pid", checkAdminRoutes, async (req, res) => {
   res.json({ msg: "Product updated successfully." });
 });
 
-productsRouter.delete("/:pid", checkAdminRoutes, async (req, res) => {
+productsRouter.delete("/:pid", checkDeleteProduct, async (req, res) => {
   const id = req.params.pid;
+  console.log(req.session.email);
   try {
     await manager.deleteProduct(id);
     res.statusCode = 200;

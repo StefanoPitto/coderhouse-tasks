@@ -41,6 +41,9 @@ const productSchema = new mongoose.Schema({
   thumbnails: {
     type: [String],
   },
+  owner:{
+    email: String
+  }
 });
 productSchema.plugin(mongoosePaginate);
 export const ProductModel = mongoose.model("Product", productSchema);
