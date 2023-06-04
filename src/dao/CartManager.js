@@ -6,6 +6,7 @@ class CartManager {
     this.collection = CartModel;
   }
 
+
   createCart = async () => {
     const newCart = new CartModel({ cart: [] });
     try {
@@ -30,6 +31,7 @@ class CartManager {
       throw new Error("Error when trying to add the product to the cart.");
     }
   };
+
 
   getCartById = async (cartId) => {
     const cart = await this.collection.findById(cartId);
