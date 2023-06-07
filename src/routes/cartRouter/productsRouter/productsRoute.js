@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { manager } from "../dao/ProductManager.js";
+import { manager } from "../../../dao/ProductManager.js";
 import { check } from "express-validator";
-import { verifyStringArray } from "../middlewares/verifyStringArray.js";
-import { fieldsValidation } from "../middlewares/fieldsValidation.js";
-import { socketServer } from "../app.js";
-import { checkAdminRoutes, checkDeleteProduct } from "../middlewares/verifyAdmin.js";
-import { generateProducts } from "../services/generateProducts.js";
+import { verifyStringArray } from "../../../middlewares/verifyStringArray.js";
+import { fieldsValidation } from "../../../middlewares/fieldsValidation.js";
+import { socketServer } from "../../../app.js";
+import { checkAdminRoutes, checkDeleteProduct } from "../../../middlewares/verifyAdmin.js";
+import { generateProducts } from "../../../services/generateProducts.js";
 
 export const productsRouter = Router();
 /**
@@ -118,7 +118,7 @@ productsRouter.post(
       thumbnail,
     } = req.body;
     try {
-      await manager.addProduct({
+      let product = await manager.addProduct({
         title,
         description,
         code,
@@ -128,8 +128,8 @@ productsRouter.post(
         category,
         thumbnail,
       });
-      res.statusCode = 200;
-      res.json({ msg: "Product was added successfully." });
+      
+      res.status(200).json({ msg: "Product was added successfully.", product });
     } catch (error) {
       res.status(409).send("The product already exists.");
     }

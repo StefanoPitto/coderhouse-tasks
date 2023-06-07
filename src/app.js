@@ -1,28 +1,45 @@
+//App
 import express from "express";
 import cookieParser from "cookie-parser";
 import { json, urlencoded } from "express";
-import { engine } from "express-handlebars";
 import { __dirname } from "./utils.js";
+import dotenv from "dotenv";
+
+//WebSockets
 import { Server } from "socket.io";
-import { productsRouter } from "./routes/productsRoute.js";
-import { cartRouter } from "./routes/cartsRoute.js";
+
+//Routes
+import { productsRouter } from "./routes/cartRouter/productsRouter/productsRoute.js";
+import { cartRouter } from "./routes/cartRouter/cartsRoute.js";
+import { usersRouter } from "./routes/usersRouter/usersRoute.js";
+import { sessionRouter } from "./routes/sessionRouter/sessionRoute.js";
+
+//Views
+import { engine } from "express-handlebars";
+
+//Managers
 import { manager } from "./dao/ProductManager.js";
 import { MessageModel } from "./dao/models/message.model.js";
-import { usersRouter } from "./routes/usersRoute.js";
-import { sessionRouter } from "./routes/sessionRoute.js";
+
+//Session
 import session from "express-session";
+import sharedsession from "express-socket.io-session";
+
+//Mongo DB
 import MongoStore from "connect-mongo";
 import mongoose from "mongoose";
 import passport from "passport";
-import dotenv from "dotenv";
-import sharedsession from "express-socket.io-session";
-//Strategies
 
+//Strategies
 import "./passport/passport.js";
 import { checkUserSocket } from "./middlewares/verifyUser.js";
 import { checkAdminSocket } from "./middlewares/verifyAdmin.js";
+
+
+//Documentation 
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from "./swagger/swaggerConfig.js";
+
 const app = express();
 
 dotenv.config();
@@ -183,3 +200,6 @@ socketServer.on("connection", (socket) => {
     console.log("User disconnected");
   });
 });
+
+
+export {app,mongoose};

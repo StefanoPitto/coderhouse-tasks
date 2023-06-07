@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "nodemon src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --exit --timeout 10000 \"src/routes/**/*.test.js\""
   },
   "repository": {
     "type": "git",
@@ -45,6 +45,9 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0"
+    "@faker-js/faker": "^7.6.0",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
   }
 }
