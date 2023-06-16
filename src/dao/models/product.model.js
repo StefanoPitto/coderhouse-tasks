@@ -2,12 +2,6 @@ import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 
 const productSchema = new mongoose.Schema({
-  id: {
-    type: Number,
-    unique: true,
-    index: true,
-    required: true,
-  },
   title: {
     type: String,
     required: true,

@@ -11,14 +11,15 @@ export class ProductManager {
       return;
     }
 
-    const newProduct = new ProductModel({ id: this.counter, ...product });
+    const newProduct = new ProductModel({ ...product });
 
     try {
       await newProduct.save();
+      return newProduct;
     } catch (err) {
       throw new Error("Error when adding a new product!");
     }
-    this.counter++;
+
   };
 
   getProducts = async (

@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { userManager } from "../dao/UsersManager.js";
-import { UserModel } from "../dao/models/user.model.js";
+import { userManager } from "../../dao/UsersManager.js";
+import { UserModel } from "../../dao/models/user.model.js";
 import passport from "passport";
-import "../passport/passport.js";
+import "../../passport/passport.js";
+
 export const usersRouter = Router();
+
 /**
  * @swagger
  * /auth/registerGitHub:
@@ -16,8 +18,9 @@ export const usersRouter = Router();
  */
 usersRouter.get(
   "/registerGitHub",
-  passport.authenticate("github", { scope: ["user:email"] }),
+  passport.authenticate("github", { scope: ["user:email"] })
 );
+
 /**
  * @swagger
  * /auth/github:
@@ -37,9 +40,10 @@ usersRouter.get(
     req.session.email = req.user.email;
     const userFromDb = await UserModel.findOne({ email: req.user.email });
 
-    res.redirect(`/user-profile?id=${userFromDb._id}`);
-  },
+    res.status(200).redirect(`/user-profile?id=${userFromDb._id}`);
+  }
 );
+
 /**
  * @swagger
  * /auth:
@@ -61,14 +65,15 @@ usersRouter.post("/", async (req, res, next) => {
         return next(err);
       }
       if (!user) {
-        return res.redirect("/");
+        return res.status(400).redirect("/");
       }
       req.session.email = user.email;
       const userFromDb = await UserModel.findOne({ email: user.email });
-      res.status(200).redirect(`/user-profile?id=${userFromDb._id}`);
-    },
+      res.status(200).json({id:userFromDb._id}).redirect(`/user-profile?id=${userFromDb._id}`);
+    }
   )(req, res, next);
 });
+
 /**
  * @swagger
  * /auth/login:
@@ -79,7 +84,7 @@ usersRouter.post("/", async (req, res, next) => {
  *       302:
  *         description: Redirect to user profile page.
  */
-usersRouter.post("/login", async (req, res, next) => {
+usersRouter.post("/login", (req, res, next) => {
   passport.authenticate(
     "login",
     {
@@ -90,12 +95,25 @@ usersRouter.post("/login", async (req, res, next) => {
         return next(err);
       }
       if (!user) {
-        return res.redirect("/");
+        return res.status(400).send("Bad Request");
       }
-      res.redirect(`/user-profile?id=${user.toString()}`);
-    },
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+      
+        const responseData = {
+          id: user.id.toString(),
+          token: user.token,
+          redirectUrl: `/user-profile?id=${user.id.toString()}`,
+        };
+        res.status(200).json(responseData);
+        
+      });
+    }
   )(req, res, next);
 });
+
 /**
  * @swagger
  * /auth/reset-password:
@@ -115,6 +133,7 @@ usersRouter.post('/reset-password', async (req, res) => {
     res.status(400).json({ msg: 'Error', error: error });
   }
 });
+
 /**
  * @swagger
  * /auth/forgot-password:
@@ -127,17 +146,16 @@ usersRouter.post('/reset-password', async (req, res) => {
  *       400:
  *         description: User does not exist.
  */
-usersRouter.post("/forgot-password", async (req,res)=>{
-  const {email} = req.body;
-  try{
+usersRouter.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  try {
     await userManager.recoverPassword(email);
-    res.status(200).json({msg:"Email, was sent"})
-  }catch(error){
-    res.status(400).json({msg:'User does not exists.'})
+    res.status(200).json({ msg: "Email was sent" });
+  } catch (error) {
+    res.status(400).json({ msg: "User does not exist." });
   }
+});
 
-
-})
 /**
  * @swagger
  * /auth/change-password:
@@ -154,13 +172,13 @@ usersRouter.post('/change-password', async (req, res) => {
   const { password, token } = req.body;
 
   try {
-      const userFromDb = await userManager.updateUserPasswordFromToken(password,token);
-      res.redirect(`/user-profile?id=${userFromDb._id}`);
-    
+    const userFromDb = await userManager.updateUserPasswordFromToken(password, token);
+    res.redirect(`/user-profile?id=${userFromDb._id}`);
   } catch (error) {
     res.status(400).json({ msg: 'Invalid or expired token.' });
-  };
-})
+  }
+});
+
 /**
  * @swagger
  * /auth/logout:
@@ -182,18 +200,36 @@ usersRouter.post("/logout", async (req, res) => {
   });
 });
 
-usersRouter.get("/premium/:uid", async (req,res)=>{
+/**
+ * @swagger
+ * /auth/premium/{uid}:
+ *   get:
+ *     summary: Update user role to premium
+ *     description: Updates the user role to premium.
+ *     parameters:
+ *       - in: path
+ *         name: uid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Role updated successfully.
+ *       400:
+ *         description: Wrong user or error updating role.
+ */
+usersRouter.get("/premium/:uid", async (req, res) => {
   const userId = req.params.uid;
 
-try{
-  await userManager.updatePremiumUser(userId)
-  res.status(200).json({ok:true,msg:'Role updated'});
-}catch(error){
-  console.log(error);
-  res.status(400).json({ok:false,msg:'Wrong user'});
-}
-})
-
+  try {
+    await userManager.updatePremiumUser(userId);
+    res.status(200).json({ ok: true, msg: 'Role updated' });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ ok: false, msg: 'Wrong user or error updating role' });
+  }
+});
 
 /**
  * @swagger
@@ -220,6 +256,6 @@ usersRouter.get("/:id", async (req, res) => {
     const user = await userManager.getUserById(userId);
     res.status(200).json({ ...user });
   } catch (error) {
-    res.status(500).json({ msg: "Error!" });
+    res.status(500).json({ msg: "Error retrieving user details" });
   }
 });

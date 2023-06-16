@@ -4,7 +4,6 @@ export const generateProducts = async () => {
   let products = [];
   for (let i = 0; i < 100; i++) {
     const product = {
-      id: i + 1,
       title: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       code: faker.helpers.slugify(faker.commerce.productName()),

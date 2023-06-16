@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { generateToken } from "../utils.js";
-import { userManager } from "../dao/UsersManager.js";
-import { validateJWT } from "../middlewares/middleware.js";
+import { generateToken } from "../../utils.js";
+import { userManager } from "../../dao/UsersManager.js";
+import { validateJWT } from "../../middlewares/middleware.js";
 import jwt from "jsonwebtoken";
 export const sessionRouter = Router();
 

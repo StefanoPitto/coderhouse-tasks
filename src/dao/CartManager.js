@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { CartModel } from "./models/cart.model.js";
 
 class CartManager {
@@ -8,10 +7,12 @@ class CartManager {
 
 
   createCart = async () => {
-    const newCart = new CartModel({ cart: [] });
+    const newCart = new CartModel();
     try {
       await newCart.save();
-      return newCart._id; // Return the generated MongoDB _id
+      console.log(newCart._id)
+      return newCart._id;
+
     } catch (error) {
       throw new Error("Error when trying to create a new cart!");
     }

@@ -53,7 +53,6 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, email, password, done) => {
-      console.log(email);
       try {
         const user = await UserModel.findOne({ email });
 
@@ -74,8 +73,7 @@ passport.use(
         req.session.token = token;
         req.session.email = user.email;
         req.session.password = user.password;
-        console.log(req.session);
-        done(null, user._id);
+        done(null, {id:user._id,token});
       } catch (error) {
         console.log(error);
         done(error);
@@ -115,7 +113,7 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
