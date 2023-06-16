@@ -3,57 +3,8 @@ import { userManager } from "../dao/UsersManager.js";
 import { UserModel } from "../dao/models/user.model.js";
 import passport from "../passport/passport.js";
 import "../passport/passport.js";
+import { uploadFile } from "../utils.js";
 export const usersRouter = Router();
-
-// usersRouter.post(
-//   "/",
-//   [
-//     check("name").notEmpty().isString(),
-//     check("email").notEmpty().isEmail(),
-//     check("password").notEmpty().isString(),
-//     check("age").notEmpty().isNumeric(),
-//     check("address").notEmpty().isString(),
-//     check("role").isIn(["admin", "user"]),
-//     fieldsValidation,
-//   ],
-//   async (req, res) => {
-//     // get the user details from the request body
-//     const { name, email, password, age, address, role = "user" } = req.body;
-
-//     const user = { name, email, password, age, address, role };
-
-//     try {
-//       const userFromDb = await userManager.createUser(user);
-//       res
-//         .status(201)
-//         .json({ message: "User account created successfully", ...userFromDb });
-//     } catch (err) {
-//       return res.status(500).json({ err });
-//     }
-//   }
-// );
-
-// usersRouter.post(
-//   "/login",
-//   [
-//     check("email").notEmpty().isEmail(),
-//     check("password").notEmpty(),
-//     fieldsValidation,
-//   ],
-//   async (req, res) => {
-//     const { email, password } = req.body;
-
-//     try {
-//       const user = await userManager.login({ email, password });
-//       console.log("USERID", user.id);
-//       req.session.user = { id: user._id, email: user.email };
-//       res.status(201).json({ msg: "Login succesfull", ...user });
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ err });
-//     }
-//   }
-// );
 
 usersRouter.post("/", async (req, res, next) => {
   passport.authenticate(
@@ -130,3 +81,56 @@ usersRouter.get(
     res.redirect(`/user-profile?id=${userFromDb._id}`);
   }
 );
+
+usersRouter.post(
+  "/:uid/documents",
+  uploadFile.array("documents"),
+  async (req, res) => {
+    try {
+      const { uid } = req.params;
+      const { documents } = req.body;
+
+      // Actualiza el estado del usuario con los documentos cargados
+      // Aquí deberías implementar la lógica para actualizar la propiedad de estado del usuario según los documentos cargados
+
+      res.status(200).json({ message: "Archivos subidos exitosamente" });
+    } catch (error) {
+      res.status(500).json({ error: "Error al cargar los archivos" });
+    }
+  }
+);
+
+usersRouter.put("/premium/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
+
+    // Verifica si el usuario ha cargado los documentos requeridos
+    const user = await User.findById(uid);
+    const requiredDocuments = [
+      "Identificación",
+      "Comprobante de domicilio",
+      "Comprobante de estado de cuenta",
+    ];
+    const userDocuments = user.documents.map((doc) => doc.name);
+
+    const hasRequiredDocuments = requiredDocuments.every((doc) =>
+      userDocuments.includes(doc)
+    );
+
+    if (!hasRequiredDocuments) {
+      return res
+        .status(400)
+        .json({ error: "El usuario no ha cargado los documentos requeridos" });
+    }
+
+    // Si el usuario ha cargado los documentos requeridos, actualízalo a premium
+    user.role = "premium";
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Usuario actualizado a premium exitosamente" });
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar el usuario a premium" });
+  }
+});

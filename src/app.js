@@ -78,7 +78,7 @@ app.use("/api/auth", usersRouter);
 
 //Session Route
 
-app.use("/api/session/", sessionRouter);
+app.use("/api/session", sessionRouter);
 
 //Lo mejor seria cambiar el puerto por una variable de entorno.
 

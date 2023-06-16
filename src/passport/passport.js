@@ -70,25 +70,30 @@ passport.use(
   "github",
   new GithubStrategy(
     {
-      clientID: "Iv1.20237976621ec5c1",
-      clientSecret: "f6162e1f7637528f37dd09967a0630b8ac2f6d86",
+      clientID: "Iv1.b31ec3fe2305a7b3",
+      clientSecret: "dbd96d8e758a48bf7f609445469a1490e79f8b39",
       callbackURL: "http://localhost:8080/api/auth/github",
     },
     async (accessToken, refreshToken, profile, done) => {
-      const user = await UserModel.findOne({ email: profile._json.email });
-      if (!user) {
-        const newUser = {
-          name: profile._json.name,
-          email: profile._json.email,
-          password: "",
-          address: "",
-          age: 0,
-          role: "user",
-        };
-        const dbResult = await UserModel.create(newUser);
-        done(null, dbResult);
-      } else {
-        done(null, user);
+      try {
+        const user = await UserModel.findOne({ email: profile._json.email });
+        if (!user) {
+          const newUser = {
+            name: profile._json.name,
+            email: profile._json.email,
+            password: "",
+            address: "",
+            age: 0,
+            role: "user",
+          };
+          const dbResult = await UserModel.create(newUser);
+          done(null, dbResult);
+        } else {
+          done(null, user);
+        }
+      } catch (err) {
+        console.error(err);
+        done({ msg: "Error!" });
       }
     }
   )
