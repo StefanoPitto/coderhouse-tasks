@@ -16,7 +16,6 @@ const id = urlParams.get("id");
   const res = await fetch(`/api/auth/${id}`, {
     method: "GET",
   });
-
   if (!res.ok) {
     throw new Error(`Error: ${res.status}`);
   }
@@ -29,7 +28,6 @@ const id = urlParams.get("id");
 })();
 
 updateFields = (user) => {
-  console.log(user);
   firstName.innerHTML = user.first_name;
   lastName.innerHTML = user.last_name;
   email.innerHTML = user.email;

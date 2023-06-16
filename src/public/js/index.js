@@ -1,3 +1,4 @@
+const main = document.getElementById("main");
 let container = document.getElementById("products-container");
 let chatContainer = document.getElementById("chat-container");
 let emailInput = document.getElementById("emailInput");
@@ -18,7 +19,7 @@ socket.on("connect", () => {
           <p class="product-price">$${product.price.toFixed(2)}</p>
           <p class="product-stock">${product.stock}</p>
           <p class="product-category">${product.category}</p>
-        </div>`
+        </div>`,
       )
       .join("");
 
@@ -34,7 +35,7 @@ socket.on("connect", () => {
           <p class="product-price">$${product.price.toFixed(2)}</p>
           <p class="product-stock">${product.stock}</p>
           <p class="product-category">${product.category}</p>
-        </div>`
+        </div>`,
       )
       .join("");
 
@@ -46,7 +47,7 @@ socket.on("connect", () => {
     let content = messageArray
       .map(
         (elem) =>
-          `<div><p class="user">User: ${elem.user}</p> <p class="message">Message: ${elem.message}</p></div>`
+          `<div><p class="user">User: ${elem.user}</p> <p class="message">Message: ${elem.message}</p></div>`,
       )
       .join("");
     chatContainer.innerHTML = content;
@@ -63,8 +64,17 @@ socket.on("loadMessages", (messageArray) => {
   let content = messageArray
     .map(
       (elem) =>
-        `<div><p class="user">User: ${elem.user}</p> <p class="message">Message: ${elem.message}</p></div>`
+        `<div><p class="user">User: ${elem.user}</p> <p class="message">Message: ${elem.message}</p></div>`,
     )
     .join("");
   chatContainer.innerHTML = content;
+});
+
+socket.on("error", (error) => {
+  Swal.fire({
+    icon: "error",
+    title: "Oops...",
+    text: "Something went wrong!",
+    footer: error,
+  });
 });

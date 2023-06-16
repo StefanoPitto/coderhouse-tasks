@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "admin"],
+    enum: ["user", "admin","premium"],
     default: "user",
   },
   cartId: {
@@ -51,6 +51,8 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  passwordResetToken: String,
+  passwordResetTokenExpiration: Date,
 });
 
 export const UserModel = mongoose.model("User", userSchema);

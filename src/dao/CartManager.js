@@ -1,48 +1,41 @@
-import mongoose from "mongoose";
 import { CartModel } from "./models/cart.model.js";
 
 class CartManager {
   constructor() {
-    this.counter = 0;
     this.collection = CartModel;
   }
 
+
   createCart = async () => {
-    const newCart = new CartModel({ id: this.counter, cart: [] });
+    const newCart = new CartModel();
     try {
       await newCart.save();
+      console.log(newCart._id)
+      return newCart._id;
+
     } catch (error) {
       throw new Error("Error when trying to create a new cart!");
     }
-    this.counter++;
   };
 
   addProductToCart = async (cartId, productId, quantity) => {
-    let id = parseInt(cartId);
-    let pid = parseInt(productId);
-
-    const cart = await this.collection.findOne({ id });
+    const cart = await this.collection.findById(cartId);
     if (!cart) throw new Error("Cart does not exist!");
     try {
-      let products;
-      cart._doc.cart.products
-        ? (products = cart._doc.cart.products)
-        : (products = new Array());
-      let productIndex = products.findIndex((elem) => elem.id === pid);
+      let products = cart.cart.products || [];
+      let productIndex = products.findIndex((elem) => elem.id === productId);
       if (productIndex !== -1) products[productIndex].quantity += quantity;
-      else products.push({ id: pid, quantity });
-      const updatedCart = await this.collection.findOneAndUpdate(
-        { id },
-        { id, cart: { products } },
-        { new: true }
-      );
+      else products.push({ id: productId, quantity });
+      cart.cart.products = products;
+      await cart.save();
     } catch (error) {
       throw new Error("Error when trying to add the product to the cart.");
     }
   };
 
-  getCartById = async (id) => {
-    const cart = await this.collection.findOne({ id });
+
+  getCartById = async (cartId) => {
+    const cart = await this.collection.findById(cartId);
     if (!cart) {
       throw new Error("Cart does not exist");
     }

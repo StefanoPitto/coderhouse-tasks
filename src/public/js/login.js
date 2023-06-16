@@ -17,8 +17,8 @@ form.addEventListener("submit", async (e) => {
       "Content-Type": "application/json",
     },
   });
-
+  const body = await res.json();
   if (res.ok) {
-    window.location.href = res.url;
+     window.location.href = body.redirectUrl;
   }
 });

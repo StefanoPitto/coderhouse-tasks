@@ -4,7 +4,6 @@ import { ProductModel } from "./models/product.model.js";
 export class ProductManager {
   constructor() {
     this.collection = ProductModel;
-    this.setCounter();
   }
   addProduct = async (product) => {
     const item = await this.collection.findOne({ code: product.code });
@@ -12,15 +11,15 @@ export class ProductManager {
       return;
     }
 
-    const newProduct = new ProductModel({ id: this.counter, ...product });
+    const newProduct = new ProductModel({ ...product });
 
     try {
       await newProduct.save();
-      console.log(newProduct);
+      return newProduct;
     } catch (err) {
       throw new Error("Error when adding a new product!");
     }
-    this.counter++;
+
   };
 
   getProducts = async (
@@ -29,7 +28,7 @@ export class ProductManager {
     sort = "asc",
     category,
     minPrice = 0,
-    maxPrice = 100000
+    maxPrice = 100000,
   ) => {
     const filter = {
       category: category || { $exists: true },
@@ -62,7 +61,7 @@ export class ProductManager {
     return product;
   };
 
-  deleteProduct = async (id) => {
+  deleteProduct = async (id,role) => {
     let newId = parseInt(id);
     const product = await this.collection.findOne({ id: newId });
     if (!product) throw new Error("Product does not exist.");
@@ -80,7 +79,7 @@ export class ProductManager {
     try {
       await this.collection.findOneAndUpdate(
         { id: newId },
-        { ...product._doc, ...info }
+        { ...product._doc, ...info },
       );
     } catch (error) {
       throw new Error("Error when trying to update the product!");

@@ -69,10 +69,7 @@ usersRouter.post("/", async (req, res, next) => {
       }
       req.session.email = user.email;
       const userFromDb = await UserModel.findOne({ email: user.email });
-      res
-        .status(200)
-        .json({ id: userFromDb._id })
-        .redirect(`/user-profile?id=${userFromDb._id}`);
+      res.status(200).json({id:userFromDb._id}).redirect(`/user-profile?id=${userFromDb._id}`);
     }
   )(req, res, next);
 });
@@ -104,13 +101,14 @@ usersRouter.post("/login", (req, res, next) => {
         if (err) {
           return next(err);
         }
-
+      
         const responseData = {
           id: user.id.toString(),
           token: user.token,
           redirectUrl: `/user-profile?id=${user.id.toString()}`,
         };
         res.status(200).json(responseData);
+        
       });
     }
   )(req, res, next);
@@ -126,13 +124,13 @@ usersRouter.post("/login", (req, res, next) => {
  *       302:
  *         description: Redirect to change password page.
  */
-usersRouter.post("/reset-password", async (req, res) => {
+usersRouter.post('/reset-password', async (req, res) => {
   const { token } = req.body;
   try {
     await userManager.handlePasswordResetRequest(token);
     res.redirect(`/change-password?token=${token}`);
   } catch (error) {
-    res.status(400).json({ msg: "Error", error: error });
+    res.status(400).json({ msg: 'Error', error: error });
   }
 });
 
@@ -170,17 +168,14 @@ usersRouter.post("/forgot-password", async (req, res) => {
  *       400:
  *         description: Invalid or expired token.
  */
-usersRouter.post("/change-password", async (req, res) => {
+usersRouter.post('/change-password', async (req, res) => {
   const { password, token } = req.body;
 
   try {
-    const userFromDb = await userManager.updateUserPasswordFromToken(
-      password,
-      token
-    );
+    const userFromDb = await userManager.updateUserPasswordFromToken(password, token);
     res.redirect(`/user-profile?id=${userFromDb._id}`);
   } catch (error) {
-    res.status(400).json({ msg: "Invalid or expired token." });
+    res.status(400).json({ msg: 'Invalid or expired token.' });
   }
 });
 

@@ -5,14 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <link rel="stylesheet" href="/styles/style.css" />
-    <title>Document</title>
+    <title>BackEnd - CoderHouse</title>
   </head>
-  <body>
+ <body>
+<header>
+<nav class="navbar">
+  <div class="navbar-title">E-COMMERCE</div>
+  <ul class="navbar-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/create-account">Sign Up</a></li>
+    <li><a href="/login">Login</a></li>
+    <li><a href="/chat">Chat</a></li>
+    <li><a href="/realtimeproducts">Products</a></li>
+    <li><a href="/catalog">Catalog</a></li>
+  </ul>
+</nav>
+
+</header>
+
+ 
+  <div id="main" class="main-content" style="background-color: #f2f2f2">
     {{{body}}}
-  </body>
+  </div>
+
+  <div class="footer">
+    CODERHOUSE BackEnd - Stefano Pitto
+  </div>
+</body>
+</html>
   <script
     type="module"
     src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
   ></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/index.js"></script>
 </html>
