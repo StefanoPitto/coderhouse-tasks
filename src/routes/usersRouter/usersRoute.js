@@ -224,10 +224,12 @@ usersRouter.get("/premium/:uid", async (req, res) => {
 
   try {
     await userManager.updatePremiumUser(userId);
-    res.status(200).json({ ok: true, msg: 'Role updated' });
+    res.status(200).json({ ok: true, msg: "Role updated" });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ ok: false, msg: 'Wrong user or error updating role' });
+    res
+      .status(400)
+      .json({ ok: false, msg: "Wrong user or error updating role" });
   }
 });
 
@@ -259,3 +261,37 @@ usersRouter.get("/:id", async (req, res) => {
     res.status(500).json({ msg: "Error retrieving user details" });
   }
 });
+
+usersRouter.post(
+  "/:uid/documents",
+  upload.array("documents"),
+  async (req, res) => {
+    try {
+      const { uid } = req.params;
+      const { documents } = req.body;
+
+      // Verifica si el usuario existe
+      const user = await User.findById(uid);
+      if (!user) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
+
+      // Actualiza el estado del usuario con los documentos cargados
+      documents.forEach((document) => {
+        const existingDocument = user.documents.find(
+          (doc) => doc.name === document.name
+        );
+        if (existingDocument) {
+          existingDocument.status = "approved";
+        }
+      });
+
+      // Guarda los cambios en la base de datos
+      await user.save();
+
+      res.status(200).json({ message: "Archivos subidos exitosamente" });
+    } catch (error) {
+      res.status(500).json({ error: "Error al cargar los archivos" });
+    }
+  }
+);

@@ -5,13 +5,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  last_name: { type: String, required: true },
+  last_name: {
+    type: String,
+    required: true,
+  },
   email: {
     type: String,
     required: true,
     unique: true,
   },
-  password: { type: String, required: true },
+  password: {
+    type: String,
+    required: true,
+  },
   age: {
     type: Number,
     required: true,
@@ -28,6 +34,22 @@ const userSchema = new mongoose.Schema({
   cartId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "carts",
+  },
+  documents: [
+    {
+      name: {
+        type: String,
+        required: true,
+      },
+      reference: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+  last_connection: {
+    type: Date,
+    default: Date.now,
   },
   passwordResetToken: String,
   passwordResetTokenExpiration: Date,

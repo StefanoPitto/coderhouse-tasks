@@ -18,30 +18,30 @@ passport.use(
       if (user) {
         return done(null, false);
       }
-        const hashedPassword = await hash(password, 10);
-        const newUser = {
-          first_name: name.split(" ")[0],
-          last_name: name.split(" ")[1] ? name.split(" ")[1] : " ",
-          age: age || 0,
-          email,
-          password: hashedPassword,
-          address: address || "",
-          role,
-        };
-         user = await UserModel.create(newUser);
-      
+      const hashedPassword = await hash(password, 10);
+      const newUser = {
+        first_name: name.split(" ")[0],
+        last_name: name.split(" ")[1] ? name.split(" ")[1] : " ",
+        age: age || 0,
+        email,
+        password: hashedPassword,
+        address: address || "",
+        role,
+      };
+      user = await UserModel.create(newUser);
+
       // Generate JWT token
       const token = jwt.sign(
         { userId: user._id, role: user.role, email: user.email },
-        process.env.SECRET_KEY,
+        process.env.SECRET_KEY
       );
       // Add token to session
       req.session.token = token;
       req.session.email = user.email;
       req.session.password = user.password;
-      done(null,user);
-    },
-  ),
+      done(null, user);
+    }
+  )
 );
 
 passport.use(
@@ -66,20 +66,20 @@ passport.use(
         // Generate JWT token
         const token = jwt.sign(
           { userId: user._id, role: user.role, email: user.email },
-          process.env.SECRET_KEY,
+          process.env.SECRET_KEY
         );
 
         // Add token to session
         req.session.token = token;
         req.session.email = user.email;
         req.session.password = user.password;
-        done(null, {id:user._id,token});
+        done(null, { id: user._id, token });
       } catch (error) {
         console.log(error);
         done(error);
       }
-    },
-  ),
+    }
+  )
 );
 
 passport.use(
@@ -108,8 +108,8 @@ passport.use(
       } else {
         return done(null, user);
       }
-    },
-  ),
+    }
+  )
 );
 
 passport.serializeUser((user, done) => {
