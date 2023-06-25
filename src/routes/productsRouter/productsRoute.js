@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { manager } from "../../../dao/ProductManager.js";
+import { manager } from "../../dao/ProductManager.js";
 import { check } from "express-validator";
-import { verifyStringArray } from "../../../middlewares/verifyStringArray.js";
-import { fieldsValidation } from "../../../middlewares/fieldsValidation.js";
-import { socketServer } from "../../../app.js";
-import { checkAdminRoutes, checkDeleteProduct } from "../../../middlewares/verifyAdmin.js";
-import { generateProducts } from "../../../services/generateProducts.js";
+import { verifyStringArray } from "../../middlewares/verifyStringArray.js";
+import { fieldsValidation } from "../../middlewares/fieldsValidation.js";
+import { socketServer } from "../../app.js";
+import { checkAdminRoutes, checkDeleteProduct, verifyTokenAdmin } from "../../middlewares/verifyAdmin.js";
+import { generateProducts } from "../../services/generateProducts.js";
+import { verifyToken } from "../../middlewares/middleware.js";
 
 export const productsRouter = Router();
 /**
@@ -105,7 +106,7 @@ productsRouter.post(
     fieldsValidation,
   ],
   verifyStringArray,
-  checkAdminRoutes,
+  verifyToken,
   async (req, res) => {
     const {
       title,
@@ -116,7 +117,10 @@ productsRouter.post(
       status,
       category,
       thumbnail,
+      owner
     } = req.body;
+
+
     try {
       let product = await manager.addProduct({
         title,
@@ -127,6 +131,8 @@ productsRouter.post(
         status,
         category,
         thumbnail,
+        owner: owner === '' ? 'admin' : owner,
+
       });
       
       res.status(200).json({ msg: "Product was added successfully.", product });
@@ -183,11 +189,15 @@ productsRouter.get("/mockingproducts", async (req, res) => {
  *       404:
  *         description: Product not found.
  */
-productsRouter.put("/:pid", checkAdminRoutes, async (req, res) => {
+productsRouter.put("/:pid", verifyToken, async (req, res) => {
   const product = req.body;
   const id = req.params.pid;
+  const bearerToken = req.headers.authorization.split(" ")[1];
+  const decoded = jwt.verify(bearerToken,process.env.SECRET_KEY);
+
   try {
-    await manager.updateProduct(id, product);
+      
+    await manager.updateProduct(id, product,decoded.email,decoded.role);
   } catch (error) {
     error.statusCode = 404;
     console.log(error);

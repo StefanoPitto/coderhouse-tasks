@@ -65,7 +65,7 @@ passport.use(
           return done(null, false, { message: "Invalid email or password" });
         // Generate JWT token
         const token = jwt.sign(
-          { userId: user._id, role: user.role, email: user.email },
+          { userId: user._id, role: user.role, email: user.email, expiration_time:  new Date().getTime() + 60 * 60 * 1000},
           process.env.SECRET_KEY
         );
 

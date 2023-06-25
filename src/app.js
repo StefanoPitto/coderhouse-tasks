@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 
 //Routes
-import { productsRouter } from "./routes/cartRouter/productsRouter/productsRoute.js";
+import { productsRouter } from "./routes/productsRouter/productsRoute.js";
 import { cartRouter } from "./routes/cartRouter/cartsRoute.js";
 import { usersRouter } from "./routes/usersRouter/usersRoute.js";
 import { sessionRouter } from "./routes/sessionRouter/sessionRoute.js";

@@ -3,6 +3,7 @@ import { userManager } from "../../dao/UsersManager.js";
 import { UserModel } from "../../dao/models/user.model.js";
 import passport from "passport";
 import "../../passport/passport.js";
+import { uploadFile } from "../../utils.js";
 
 export const usersRouter = Router();
 
@@ -264,7 +265,7 @@ usersRouter.get("/:id", async (req, res) => {
 
 usersRouter.post(
   "/:uid/documents",
-  upload.array("documents"),
+uploadFile.array("documents"),
   async (req, res) => {
     try {
       const { uid } = req.params;

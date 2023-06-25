@@ -10,7 +10,6 @@ export class UsersManager {
   }
 
   createUser = async (user) => {
-    console.log("USUARIO", user);
     const userFromDb = await this.collection.findOne({ email: user.email });
     if (userFromDb) throw new Error("Error! User already exists. ");
     let hashedPassword;

@@ -33,6 +33,29 @@ export const checkAdminRoutes = (req, res, next) => {
   }
 };
 
+export const verifyTokenAdmin = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
+
+      if (decodedToken.role === "admin") next();
+
+
+   
+      next(); 
+    } catch (err) {
+      res.status(401).json({ error: 'Invalid token' }); 
+    }
+  } else {
+    res.status(401).json({ error: 'No token provided' }); 
+  }
+};
+
+
+
+
 export const checkDeleteProduct = async (req, res, next) => {
   let token = req.session.token
  

@@ -72,10 +72,11 @@ export class ProductManager {
     }
   };
 
-  updateProduct = async (id, info) => {
+  updateProduct = async (id, info,owner,role) => {
     let newId = parseInt(id);
     const product = await this.collection.findOne({ id: newId });
     if (!product) throw new Error("Product does not exist.");
+    if(owner !== product.owner && role !== 'admin' ) throw new Error('Not Allowed to edit the product');
     try {
       await this.collection.findOneAndUpdate(
         { id: newId },
