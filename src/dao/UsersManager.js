@@ -2,7 +2,7 @@ import { UserModel } from "./models/user.model.js";
 import { hash, compare } from "bcrypt";
 import { userDTO } from "../dto/user.dto.js";
 import CryptoJS from "crypto-js";
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 export class UsersManager {
   constructor() {
     this.collection = UserModel;
@@ -45,33 +45,31 @@ export class UsersManager {
     else return new userDTO(user);
   };
 
-  
-
   recoverPassword = async (email) => {
     const userFromDB = await UserModel.findOne({ email });
-  
+
     if (userFromDB) {
       // Generate a random token
       const token = CryptoJS.lib.WordArray.random(20).toString();
-  
+
       // Set the token and its expiration in the user's account
       userFromDB.passwordResetToken = token;
       userFromDB.passwordResetTokenExpiration = Date.now() + 3600000; // Token expires in 1 hour
-  
+
       await userFromDB.save();
-  
+
       // create a transporter
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        service: "gmail",
         auth: {
           user: process.env.GMAIL_ACCOUNT,
           pass: process.env.GMAIL_PASSWORD,
-        }
+        },
       });
-  
+
       // Create the password reset URL
       const resetURL = `http://localhost:8080/token?token=${token}`;
-  
+
       // Create the HTML content of the email with inline CSS styles
       const emailHTML = `
         <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
@@ -84,46 +82,48 @@ export class UsersManager {
           </a>
         </div>
       `;
-  
+
       // send the email
-      transporter.sendMail({
-        from: process.env.GMAIL_ACCOUNT,
-        to: email,
-        subject: 'Password Recovery',
-        html: emailHTML
-      }, function (error, info) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
+      transporter.sendMail(
+        {
+          from: process.env.GMAIL_ACCOUNT,
+          to: email,
+          subject: "Password Recovery",
+          html: emailHTML,
+        },
+        function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log("Email sent: " + info.response);
+          }
+        },
+      );
     } else {
-      throw new Error('User does not exist.');
+      throw new Error("User does not exist.");
     }
   };
-  
+
   handlePasswordResetRequest = async (token) => {
     try {
       const userFromDB = await UserModel.findOne({
         passwordResetToken: token,
-        passwordResetTokenExpiration: { $gt: Date.now() } // Ensure token is not expired
+        passwordResetTokenExpiration: { $gt: Date.now() }, // Ensure token is not expired
       });
-  
+
       if (userFromDB) {
         // Token is valid, redirect to password change page
         return true;
       } else {
         // Invalid token or expired
-        throw new Error('Invalid or expired token.');
+        throw new Error("Invalid or expired token.");
       }
     } catch (error) {
-      throw new Error('Server error.');
+      throw new Error("Server error.");
     }
   };
 
-  updateUserPasswordFromToken = async (password,token) => {
-
+  updateUserPasswordFromToken = async (password, token) => {
     let hashedPassword;
     try {
       hashedPassword = await hash(password, this.saltRounds);
@@ -134,39 +134,105 @@ export class UsersManager {
 
     try {
       const userFromDB = await UserModel.findOne({ passwordResetToken: token });
-  
+
       if (userFromDB && userFromDB.passwordResetTokenExpiration > Date.now()) {
         // Token is valid, update the password
-        console.log('hashedPass',hashedPassword)
+        console.log("hashedPass", hashedPassword);
         userFromDB.password = hashedPassword;
         userFromDB.passwordResetToken = null;
         userFromDB.passwordResetTokenExpiration = null;
-        await userFromDB.save();     
+        await userFromDB.save();
         return userFromDB;
       } else {
         // Invalid token or expired
-        throw new Error( 'Invalid or expired token.' );
+        throw new Error("Invalid or expired token.");
       }
     } catch (error) {
-      throw new Error('Server Error');
+      throw new Error("Server Error");
     }
+  };
 
-
-
-
-  }
-
+  getAll = async () => {
+    const users = await this.collection.find();
+    console.log(users, "USER");
+    return await users.map((user) => {
+      return {
+        name: `${user.first_name} ${user.last_name}`,
+        age: user.age,
+        email: user.email,
+        role: user.role,
+      };
+    });
+  };
 
   updatePremiumUser = async (id) => {
-    const userFromDB = await UserModel.findOne({ _id:id});
-    if(!userFromDB) throw new Error('User does not exist');
-    userFromDB.role= userFromDB.role === 'premium' ? 'user': 'premium';
+    const userFromDB = await UserModel.findOne({ _id: id });
+    if (!userFromDB) throw new Error("User does not exist");
+    userFromDB.role = userFromDB.role === "premium" ? "user" : "premium";
     await userFromDB.save();
-  
-  }
+  };
 
+  deleteInactiveUsers = async () => {
+    // create a transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_ACCOUNT,
+        pass: process.env.GMAIL_PASSWORD,
+      },
+    });
 
+    try {
+      const twoHoursAgo = new Date(Date.now() - 2 * 1000);
 
+      // Find inactive users
+      const inactiveUsers = await UserModel.find({
+        last_connection: { $lt: twoHoursAgo },
+      });
+
+      // Extract email addresses of inactive users
+      const deletedUserEmails = inactiveUsers.map((user) => user.email);
+
+      // Delete inactive users
+      const deletionResult = await UserModel.deleteMany({
+        last_connection: { $lt: twoHoursAgo },
+      });
+
+      const emailHTML = `
+        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+          <h2 style="color: #007bff;">Account Deletion</h2>
+          <p>Your account has been deleted due to inactivity.</p>
+        </div>
+      `;
+
+      deletedUserEmails.map((email) => {
+        transporter.sendMail(
+          {
+            from: process.env.GMAIL_ACCOUNT,
+            to: email,
+            subject: "Account Deleted",
+            html: emailHTML,
+          },
+          function (error, info) {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log("Email sent: " + info.response);
+            }
+          },
+        );
+      });
+
+      return inactiveUsers.map((user) => {
+        return {
+          name: `${user.first_name} ${user.last_name}`,
+          email: user.email,
+        };
+      });
+    } catch (error) {
+      throw new Error("Error when deleting users");
+    }
+  };
 }
 
 export const userManager = new UsersManager();

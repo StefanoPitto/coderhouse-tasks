@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userManager } from "../../dao/UsersManager.js";
+import { UsersManager, userManager } from "../../dao/UsersManager.js";
 import { UserModel } from "../../dao/models/user.model.js";
 import passport from "passport";
 import "../../passport/passport.js";
@@ -7,6 +7,15 @@ import { uploadFile } from "../../utils.js";
 
 export const usersRouter = Router();
 
+usersRouter.get("/", async (req, res) => {
+  try {
+    let users = await userManager.getAll();
+    res.status(200).json({ ok: true, users });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ ok: false, msg: "Error when trying to get users." });
+  }
+});
 /**
  * @swagger
  * /auth/registerGitHub:
@@ -17,10 +26,7 @@ export const usersRouter = Router();
  *       200:
  *         description: Redirect to GitHub authentication page.
  */
-usersRouter.get(
-  "/registerGitHub",
-  passport.authenticate("github", { scope: ["user:email"] })
-);
+usersRouter.get("/registerGitHub", passport.authenticate("github", { scope: ["user:email"] }));
 
 /**
  * @swagger
@@ -42,7 +48,7 @@ usersRouter.get(
     const userFromDb = await UserModel.findOne({ email: req.user.email });
 
     res.status(200).redirect(`/user-profile?id=${userFromDb._id}`);
-  }
+  },
 );
 
 /**
@@ -55,24 +61,14 @@ usersRouter.get(
  *       302:
  *         description: Redirect to user profile page.
  */
-usersRouter.post("/", async (req, res, next) => {
-  passport.authenticate(
-    "register",
-    {
-      failureRedirect: "/",
-    },
-    async (err, user) => {
-      if (err) {
-        return next(err);
-      }
-      if (!user) {
-        return res.status(400).redirect("/");
-      }
-      req.session.email = user.email;
-      const userFromDb = await UserModel.findOne({ email: user.email });
-      res.status(200).json({id:userFromDb._id}).redirect(`/user-profile?id=${userFromDb._id}`);
-    }
-  )(req, res, next);
+usersRouter.post("/", passport.authenticate("register", { failureRedirect: "/" }), async (req, res, next) => {
+  try {
+    const userFromDb = await UserModel.findOne({ email: req.user.email });
+    req.session.email = req.user.email;
+    res.status(200).redirect(`/user-profile?id=${userFromDb._id}`);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -102,16 +98,15 @@ usersRouter.post("/login", (req, res, next) => {
         if (err) {
           return next(err);
         }
-      
+
         const responseData = {
           id: user.id.toString(),
           token: user.token,
           redirectUrl: `/user-profile?id=${user.id.toString()}`,
         };
         res.status(200).json(responseData);
-        
       });
-    }
+    },
   )(req, res, next);
 });
 
@@ -125,13 +120,13 @@ usersRouter.post("/login", (req, res, next) => {
  *       302:
  *         description: Redirect to change password page.
  */
-usersRouter.post('/reset-password', async (req, res) => {
+usersRouter.post("/reset-password", async (req, res) => {
   const { token } = req.body;
   try {
     await userManager.handlePasswordResetRequest(token);
     res.redirect(`/change-password?token=${token}`);
   } catch (error) {
-    res.status(400).json({ msg: 'Error', error: error });
+    res.status(400).json({ msg: "Error", error: error });
   }
 });
 
@@ -169,14 +164,14 @@ usersRouter.post("/forgot-password", async (req, res) => {
  *       400:
  *         description: Invalid or expired token.
  */
-usersRouter.post('/change-password', async (req, res) => {
+usersRouter.post("/change-password", async (req, res) => {
   const { password, token } = req.body;
 
   try {
     const userFromDb = await userManager.updateUserPasswordFromToken(password, token);
     res.redirect(`/user-profile?id=${userFromDb._id}`);
   } catch (error) {
-    res.status(400).json({ msg: 'Invalid or expired token.' });
+    res.status(400).json({ msg: "Invalid or expired token." });
   }
 });
 
@@ -228,9 +223,7 @@ usersRouter.get("/premium/:uid", async (req, res) => {
     res.status(200).json({ ok: true, msg: "Role updated" });
   } catch (error) {
     console.log(error);
-    res
-      .status(400)
-      .json({ ok: false, msg: "Wrong user or error updating role" });
+    res.status(400).json({ ok: false, msg: "Wrong user or error updating role" });
   }
 });
 
@@ -263,36 +256,39 @@ usersRouter.get("/:id", async (req, res) => {
   }
 });
 
-usersRouter.post(
-  "/:uid/documents",
-uploadFile.array("documents"),
-  async (req, res) => {
-    try {
-      const { uid } = req.params;
-      const { documents } = req.body;
+usersRouter.post("/:uid/documents", uploadFile.array("documents"), async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const { documents } = req.body;
 
-      // Verifica si el usuario existe
-      const user = await User.findById(uid);
-      if (!user) {
-        return res.status(404).json({ error: "Usuario no encontrado" });
-      }
-
-      // Actualiza el estado del usuario con los documentos cargados
-      documents.forEach((document) => {
-        const existingDocument = user.documents.find(
-          (doc) => doc.name === document.name
-        );
-        if (existingDocument) {
-          existingDocument.status = "approved";
-        }
-      });
-
-      // Guarda los cambios en la base de datos
-      await user.save();
-
-      res.status(200).json({ message: "Archivos subidos exitosamente" });
-    } catch (error) {
-      res.status(500).json({ error: "Error al cargar los archivos" });
+    // Verifica si el usuario existe
+    const user = await User.findById(uid);
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
+
+    // Actualiza el estado del usuario con los documentos cargados
+    documents.forEach((document) => {
+      const existingDocument = user.documents.find((doc) => doc.name === document.name);
+      if (existingDocument) {
+        existingDocument.status = "approved";
+      }
+    });
+
+    // Guarda los cambios en la base de datos
+    await user.save();
+
+    res.status(200).json({ message: "Archivos subidos exitosamente" });
+  } catch (error) {
+    res.status(500).json({ error: "Error al cargar los archivos" });
   }
-);
+});
+
+usersRouter.delete("/", async (req, res) => {
+  try {
+    const deletedUsers = await userManager.deleteInactiveUsers();
+    res.status(200).json({ message: "Users deleted successfully", users: deletedUsers });
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred while deleting users" });
+  }
+});
